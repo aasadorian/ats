@@ -96,7 +96,7 @@ kickoff, whatever the settings.
 - A typed **`LeagueSettings`** model, one-to-one with `LeagueSeason`, with a real column per setting
   (not a JSON blob), so Django validates them and the commissioner gets a generated settings form.
 - Settings are copied forward when a new season is created.
-- Every change is recorded in `AuditEvent`.
+- Every change is recorded in `ActivityEvent` ([10](10-activity-log.md)).
 
 ## 3. Changing settings mid-season
 

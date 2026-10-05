@@ -156,7 +156,12 @@ entity so a second league (or a test league) is trivial later.
   Members are emailed when an OFF game becomes pickable.
 - Score correction screen for a game (in case a feed is wrong)
 - Member management (invite, deactivate, reset)
-- Audit log of overrides
+- Activity log: filterable by member, week, game and event type, with CSV export ([10](10-activity-log.md))
+
+**Activity log** ([10](10-activity-log.md))
+- Every change is logged with who, when, before and after: lines fetched, locked, overridden, voided; picks made, changed, cleared; best bets and tiebreakers; score corrections; settings; membership; security events
+- "My activity" for each member, a public league feed, and a per-game pick history after lock
+- Pick events are never visible to others (including the commissioner) before the game locks
 
 **Automation**
 - Automatic weekly spread fetch + lock at the configured time
@@ -182,7 +187,7 @@ entity so a second league (or a test league) is trivial later.
 ## 5. Non-functional requirements
 - **Correctness of locks** is the #1 requirement: server-side time checks, all times stored in UTC
   and displayed in Pacific (or the member's local timezone).
-- **Auditability**: every spread/score override and commissioner-entered pick is logged.
+- **Auditability**: every state change (member, commissioner or system) is written to an append-only activity log in the same transaction as the change ([10](10-activity-log.md)).
 - **Availability**: must be up around Sunday kickoffs; brief downtime midweek is fine.
 - **Cost**: target < $20/month.
 - **Low maintenance**: runs unattended through a season; commissioner touch only when a feed fails.

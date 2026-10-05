@@ -20,7 +20,8 @@ erDiagram
     GAME ||--o{ PICK : "picked in"
     MEMBERSHIP ||--o{ WEEKLY_ENTRY : submits
     LEAGUE_WEEK ||--o{ WEEKLY_ENTRY : "tiebreaker for"
-    USER ||--o{ AUDIT_EVENT : performs
+    USER ||--o{ ACTIVITY_EVENT : performs
+    LEAGUE ||--o{ ACTIVITY_EVENT : logs
     LEAGUE ||--o{ INVITE : issues
     USER ||--o{ INVITE : sends
 
@@ -142,13 +143,22 @@ erDiagram
         int league_week_id
         int tiebreaker_guess
     }
-    AUDIT_EVENT {
+    ACTIVITY_EVENT {
         int id
-        int user_id
-        string action
+        datetime occurred_at
+        int league_id
+        int league_week_id
+        string category
+        string event_type
+        string actor_type
+        int actor_id
+        int subject_user_id
+        string object_type
+        int object_id
         json before
         json after
-        datetime at
+        string summary
+        string source
     }
 ```
 
@@ -217,7 +227,7 @@ def lock_at(game, league_week, settings) -> datetime:
   in `.5`, so pushes can't happen. Turning it off allows whole numbers and pushes (`push_scoring`).
 - `feed_line` — the raw value from the feed before half-point normalization (may be whole), kept for transparency.
 - `source` — `the-odds-api:median`, or `manual`. `book_count` — how many sportsbooks went into the median.
-- `overridden` — true if the commissioner changed it; the before/after is recorded in `AuditEvent`.
+- `overridden` — true if the commissioner changed it; the before/after is recorded in `ActivityEvent` ([10](10-activity-log.md)).
 
 ### Pick
 - Unique `(membership, game)` — one pick per member per game.

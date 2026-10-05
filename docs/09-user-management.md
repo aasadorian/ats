@@ -144,8 +144,8 @@ sequenceDiagram
   notices. Every email includes a **one-click unsubscribe** link (signed token) for that type.
   Security emails (password reset, email change) can't be turned off.
 
-## 7. Security events and auditing
-- Recorded in `AuditEvent`: logins (success/failure), password changes and resets, email changes,
+## 7. Security events and auditing (part of the [activity log](10-activity-log.md))
+- Recorded in `ActivityEvent` ([10](10-activity-log.md)): logins (success/failure), password changes and resets, email changes,
   MFA enrolment and removal, invites sent/accepted/revoked, role changes, deactivations.
 - The member is emailed for sensitive changes: password changed, email changed, MFA removed,
   role changed.

@@ -96,7 +96,8 @@ ats/
 │   ├── nfl/               # team, week, game, spread; feed clients
 │   ├── picks/             # pick model, pick-making views, lock logic
 │   ├── standings/         # scoring + leaderboard queries/views
-│   └── commissioner/      # override screens, audit log
+│   ├── commissioner/      # override screens, activity log views
+│   └── activity/          # ActivityEvent model, record_event(), feeds (see 10)
 ├── templates/
 ├── static/
 └── tests/
