@@ -14,6 +14,7 @@ with one weekly **best bet** worth 3 points.
 | 04 | [Data Model](04-data-model.md) | Entities, relationships, constraints, scoring computation |
 | 05 | [External Data Sources](05-data-sources.md) | Where schedules, spreads and scores come from; fallbacks |
 | 06 | [Open Questions](06-open-questions.md) | Rule and product decisions still to be made |
+| 07 | [OfficePoolStop Comparison](07-officepoolstop-comparison.md) | Where our rules and features differ from the site we're replacing |
 
 ## Decision log
 
