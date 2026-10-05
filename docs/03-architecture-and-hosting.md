@@ -56,7 +56,7 @@ sequenceDiagram
     App-->>Members: email: week N is open for picks
 
     Note over Members,App: Tue–Sun — picking window
-    Members->>App: make / edit picks, best bet, MNF total guess
+    Members->>App: make / edit picks, best bet, tiebreaker guess
     App->>App: reject edits to games past their lock time
 
     Note over App: Thu/Fri/Sat & early-Sunday games lock at their own kickoff
@@ -70,7 +70,7 @@ sequenceDiagram
     Cron->>App: update games; grade finals
 
     Note over App: After Monday night final
-    App->>App: week N final → weekly winner (MNF total tiebreaker)
+    App->>App: week N final → weekly winner(s) (tiebreaker guess, then split)
 ```
 
 ### Game/week state machines
@@ -78,7 +78,7 @@ sequenceDiagram
 **Week**: `scheduled → published (spreads locked, picks open) → in_progress (first kickoff passed) → final (all games final/graded)`
 
 **Game**: `scheduled → in_progress → final` (plus `postponed` / `cancelled`). A postponed game keeps its week; the week stays open (provisional) until it is final.
-A game's picks lock when `now >= min(kickoff_at, week.picks_lock_at)` (see
+A game's picks lock when `now >= min(kickoff_at − offset, week.picks_lock_at)` (see
 [01 §2.2](01-product-requirements.md)), evaluated server-side on every write — not by a job.
 That way a late or missed cron run can never leave a game unlocked.
 
@@ -88,13 +88,15 @@ That way a late or missed cron run can never leave a game unlocked.
 |-----|----------|---------|
 | `sync_schedule` | Daily 05:00 PT (in-season) | Pull schedule; catch kickoff time changes / flex scheduling |
 | `lock_spreads` | Every 15 min; acts once `now >= week.spreads_lock_at` (default Tue 12:00 PM PT) | Fetch lines, normalize to half points, snapshot as the week's locked spreads |
+| `refresh_lines` | Every 2 h Tue–Sun, plus at each game's lock | Only when needed: current lines for `variable` mode, `closing` snapshots for closing mode, and filling OFF lines once posted. A no-op for the default fixed-at-lock mode with no OFF games. |
 | `sync_scores` | Every 5 min (cheap no-op outside game windows) | Update scores/status; grade finals |
-| `send_reminders` | Thu 12:00 PT, Sun 08:00 PT | Email members with unpicked open games or no best bet / MNF guess |
+| `send_reminders` | Every 15 min; sends at the league's configured `reminder_times` (default Thu 12:00, Sun 08:00 PT) | Email members with unpicked open games, a missing best bet, or a missing tiebreaker guess |
+| `apply_autopicks` | At each game's lock (Later phase) | Fill missed picks when `autopick` is enabled and the member has weeks remaining |
 | `healthcheck` | Hourly | Alert if the current week has no locked spreads past lock time, or games stuck "in progress" |
 
-Because the spread lock time is configurable in the app, `lock_spreads` runs on a fixed short
-interval and checks the configured time itself; changing the lock time never requires editing
-cron config. All jobs are idempotent. `sync_scores` decides internally whether any game is live or recently
+Because lock and reminder times are league settings ([08](08-league-settings.md)), the jobs run on
+a fixed short interval and check the configured times themselves; changing a setting never requires
+editing cron config. All jobs are idempotent. `sync_scores` decides internally whether any game is live or recently
 ended, so a single every-5-minutes cron entry is enough.
 
 ## 4. Hosting

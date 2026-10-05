@@ -1,7 +1,7 @@
 # 06 — Open Questions
 
-Decisions to settle before or during build. Most rule questions become `LeagueSeason`
-config ([04](04-data-model.md)), so they won't block the architecture, but they need answers
+Decisions to settle before or during build. Most rule questions become `LeagueSettings`
+settings ([08](08-league-settings.md)), so they won't block the architecture, but they need answers
 before the first real season. When one is resolved, move it to **Resolved** below, record it in
 the decision log in [README](README.md), and update the relevant doc.
 
@@ -10,26 +10,27 @@ the decision log in [README](README.md), and update the relevant doc.
    everyone (assumed)? If it's the tiebreaker game, does the tiebreak fall back to the previous
    game, or does the prize just split?
 2. **Playoffs** — regular season only (assumed)?
-3. **Lines "OFF" at lock time** (e.g., QB injury): publish the week with that game unpickable
-   until a line appears (OPS behavior), or block publishing until the commissioner enters one?
-   If no line ever appears, OPS uses 0 (straight up), which conflicts with our half-point rule;
-   `-0.5` for the favorite instead? See [07 §2.9](07-officepoolstop-comparison.md).
-4. **Spread lock time vs. OPS** — OPS captures the opening line Tue ~3:00 AM PT; ours is noon PT.
-   Keep noon? See [07 §2.1](07-officepoolstop-comparison.md).
+3. **Default for lines "OFF" at lock time** — now a setting (`off_line_handling`,
+   `off_line_fallback`, see [08](08-league-settings.md)). Confirm the proposed defaults: publish the
+   week with the game unpickable until a line appears, and use favorite `-0.5` if none ever does.
+4. **Default spread lock time** — now a setting; OPS captures the opening line Tue ~3:00 AM PT and
+   our default is noon PT. Keep noon as the default? See [07 §2.1](07-officepoolstop-comparison.md).
+5. **MVP vs. Later settings** — confirm the phase split in [08 §1](08-league-settings.md). Is
+   anything marked Later (variable/closing lines, auto-pick, bonuses, drop worst week) needed for launch?
 
 ## Product — open
-5. Others' picks hidden until each game locks (current design), or visible earlier?
-6. Login method preference — email+password, magic link, Google? (Can support several.)
-7. Import past seasons from officepoolstop? If so, can we export CSV/HTML from it?
-8. Entry fees / payouts — track in-app (record only) or keep off-app?
-9. Notification channels — email only for MVP, or also SMS/push?
-10. Domain name for the site.
-11. How many members do we expect? (Assumed 10–50.)
+6. Others' picks hidden until each game locks (current design), or visible earlier?
+7. Login method preference — email+password, magic link, Google? (Can support several.)
+8. Import past seasons from officepoolstop? If so, can we export CSV/HTML from it?
+9. Entry fees / payouts — track in-app (record only) or keep off-app?
+10. Notification channels — email only for MVP, or also SMS/push?
+11. Domain name for the site.
+12. How many members do we expect? (Assumed 10–50.)
 
 ## Technical — open
-12. Confirm hosting choice (Render vs. Railway vs. a VPS) and budget.
-13. Email provider choice (Postmark / Resend / SES) — needs a verified sending domain.
-14. Target launch: in time for the 2027 season? A soft launch running alongside officepoolstop
+13. Confirm hosting choice (Render vs. Railway vs. a VPS) and budget.
+14. Email provider choice (Postmark / Resend / SES) — needs a verified sending domain.
+15. Target launch: in time for the 2027 season? A soft launch running alongside officepoolstop
     for the rest of 2026 would be a great real-world test.
 
 ## Resolved
@@ -51,3 +52,5 @@ the decision log in [README](README.md), and update the relevant doc.
 | 2026-10-05 | Postponed games | Stay in their week; scored (including best bets) when played; picks don't reopen | [01 §2.4.1](01-product-requirements.md), [04](04-data-model.md) |
 | 2026-10-05 | Postponed tiebreaker game | Weekly prize waits until it's played; tiebreaker game doesn't change | [01 §2.4.1](01-product-requirements.md) |
 | 2026-10-05 | Canonical spread | Median line across US sportsbooks at lock time | [05](05-data-sources.md) |
+| 2026-10-05 | How configurable? | As configurable as OfficePoolStop's manager settings; our rules become the defaults | [08](08-league-settings.md) |
+| 2026-10-05 | Tie handling after the tiebreaker | Always split; not configurable (no SOV / win % chain) | [08](08-league-settings.md) |

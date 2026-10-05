@@ -15,6 +15,7 @@ with one weekly **best bet** worth 3 points.
 | 05 | [External Data Sources](05-data-sources.md) | Where schedules, spreads and scores come from; fallbacks |
 | 06 | [Open Questions](06-open-questions.md) | Rule and product decisions still to be made |
 | 07 | [OfficePoolStop Comparison](07-officepoolstop-comparison.md) | Where our rules and features differ from the site we're replacing |
+| 08 | [League Settings](08-league-settings.md) | Every commissioner-configurable rule, defaults, MVP vs. Later, mid-season change rules |
 
 ## Decision log
 
@@ -41,6 +42,9 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-05 | Season points and best bet prize ties are split among everyone tied | [01](01-product-requirements.md), [04](04-data-model.md) |
 | 2026-10-05 | Postponed games stay in their week and are scored (best bets included) when played; picks don't reopen; the weekly prize waits for them | [01](01-product-requirements.md), [04](04-data-model.md), [05](05-data-sources.md) |
 | 2026-10-05 | Canonical spread = median line across US sportsbooks at lock time | [05](05-data-sources.md) |
+| 2026-10-05 | Rules are commissioner-configurable, modeled on OfficePoolStop's manager settings; our league's rules are the defaults; typed `LeagueSettings` model replaces the `rules` JSON | [08](08-league-settings.md), [04](04-data-model.md) |
+| 2026-10-05 | Ties left after the tiebreaker guess are always split (weekly and season); not configurable | [08](08-league-settings.md) |
+| 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status
 

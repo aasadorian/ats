@@ -12,6 +12,12 @@ manual commissioner work, and be pleasant to use on a phone.
 
 All league times are **Pacific** (`America/Los_Angeles`); storage is UTC.
 
+> **These rules are our league's defaults, not hard-coded behavior.** Almost every rule below is
+> a commissioner setting, modeled on OfficePoolStop's manager options: pick type, points, best bet
+> count and bonus, line mode and source, half-point lines and push scoring, lock times, auto-pick,
+> tiebreaker game and type, bonuses and prizes. See [08 League Settings](08-league-settings.md).
+> The one fixed rule: **ties left after the tiebreaker guess are always split.**
+
 ### 2.1 Picks
 - Every member picks **every NFL regular-season game** each week (18 weeks, ~272 games).
 - A pick is one team **against the spread**, e.g. `KC -3.5` or `BUF +3.5`.
@@ -132,7 +138,9 @@ entity so a second league (or a test league) is trivial later.
 **Commissioner tools**
 - Season setup: import schedule for the season automatically
 - Weekly spread review screen: see fetched lines, edit, then publish/lock
-- League settings: spread lock day/time, week lock day/time
+- League settings page covering every MVP setting in [08](08-league-settings.md), with defaults
+  matching our league, audit history, and the mid-season change rules from 08 §3
+- OFF-line handling: games with no line show as unpickable until a line is posted or entered
 - Score correction screen for a game (in case a feed is wrong)
 - Member management (invite, deactivate, reset)
 - Audit log of overrides

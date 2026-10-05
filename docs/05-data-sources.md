@@ -7,10 +7,12 @@ We need three kinds of data: the **schedule** (once per season, with updates for
 
 ### Primary: The Odds API (the-odds-api.com)
 - Endpoint: `/v4/sports/americanfootball_nfl/odds?markets=spreads&regions=us`
-- Free tier (~500 requests/month) is far more than we need: ~1–2 calls per week at lock time,
-  plus a few during development.
+- Free tier (~500 requests/month). One call returns every game, so the default fixed-at-lock mode
+  needs ~1–2 calls per week. `variable`/`closing` line modes ([08](08-league-settings.md)) refresh
+  every ~2 h plus at game locks: roughly 30–40 calls/week, ~150/month, still within the free tier.
 - Returns lines per bookmaker. **Canonical line ✅: the median home line across all US sportsbooks**
-  the feed returns for that game at lock time (`rules.spread_source = "median_us_books"`).
+  the feed returns for that game at lock time (`line_source = "median_us_books"`). The
+  `line_source` setting can instead name a single sportsbook.
   The number of books used is stored with the snapshot. If fewer than 3 books have a line,
   the commissioner is alerted to review it before publishing.
 
@@ -19,7 +21,9 @@ Every locked line must end in `.5`. Normalization after choosing the raw line:
 1. Round the raw line to the nearest 0.5. A median can land on a quarter, like `-3.25`; exact
    quarters round away from zero (`-3.25 → -3.5`).
 2. If the result is a whole number, **the favorite gives the extra half point**
-   (`rules.half_point_rounding = "favorite_gives_more"`): `KC -3 / BUF +3 → KC -3.5 / BUF +3.5`.
+   (`half_point_rounding = "favorite_gives"`, the default): `KC -3 / BUF +3 → KC -3.5 / BUF +3.5`.
+   The setting can be flipped to `favorite_gets`, and `half_point_lines` can be turned off
+   entirely to use whole-number lines with pushes.
 3. A pick'em (`0`) becomes `-0.5` for the team favored by the moneyline (or the home team if even).
 
 The raw value is kept in `Spread.feed_line`, and the commissioner can override any result.
@@ -75,7 +79,10 @@ class ScoreProvider(Protocol):
   query would miss. `sync_schedule` records `postponed_from` the first time it sees the status change.
 - **Cancelled outright** (e.g., 2022 BUF–CIN, never completed): assumed void, 0 points for everyone;
   commissioner marks it `cancelled` so the week can close. Still to confirm (06).
-- **Missing line at lock time** (e.g., QB injury takes a game off the board): commissioner enters it
-  manually or the game is excluded that week.
+- **Missing ("OFF") line at lock time** (e.g., QB injury takes a game off the board): handled by
+  `off_line_handling`. By default the week publishes with that game unpickable; `refresh_lines`
+  fills the line once it's posted (normalized and locked the same way), or the commissioner enters
+  one. If there's still no line at the game's lock, `off_line_fallback` applies (default: favorite
+  `-0.5`).
 - **Neutral-site / international games**: feed still names a nominal home team; nothing special needed.
 - **Pick'em lines (0)**: converted to ±0.5 (see half-point normalization above).

@@ -8,6 +8,13 @@ settings from outside a login. Where OPS offers options, this doc lists them. Th
 should check **Manager → League Settings** (including **Advanced**) to confirm which ones our league
 uses; see the checklist in §4.
 
+> **Update (2026-10-05):** we decided to make our rules as configurable as OPS's
+> ([08 League Settings](08-league-settings.md)). Most ⚠️ items below are now **settings**: line mode,
+> lock time, line source, half-point lines vs. pushes, OFF-line handling, key-game count and bonus,
+> auto-pick, tiebreaker type and the OPS bonuses. Our league's rules are just the defaults. The
+> deliberate exception is **tie handling**: we always split after the tiebreaker guess, with no
+> SOV / win % chain (§2.5, §2.6).
+
 ## 1. Summary
 
 | Area | OPS | Ours | Status |
