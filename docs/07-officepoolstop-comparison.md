@@ -20,7 +20,7 @@ uses; see the checklist in §4.
 | Area | OPS | Ours | Status |
 |------|-----|------|--------|
 | Per-game lock + weekly hard deadline | Yes | Yes | ✅ Same model |
-| Line capture time | Opening line, captured **Tue ~4:00 AM MT (3:00 AM PT)** | Configurable, **Tue 12:00 PM PT** | ⚠️ Differs by ~9 h |
+| Line capture time | Opening line, captured **Tue ~4:00 AM MT (3:00 AM PT)** | Configurable, default **Tue 3:00 AM PT** | ✅ Same |
 | Line source | ESPN (single source) | Median across US sportsbooks | ⚠️ Differs |
 | Half points / pushes | Lines used as published; push = tie (½ point) or loss | Every line forced to x.5; no pushes | ⚠️ Differs |
 | Best bet | "Key games": configurable count and bonus | Exactly one best bet, worth 3 | ✅ Same if configured as 1 key game, +2 bonus |
@@ -29,22 +29,20 @@ uses; see the checklist in §4.
 | Missed picks | Optional AutoPick (random / home / favorite), with limits | No auto-pick; missed = 0 | ✅ Same if AutoPick is off |
 | Cancelled games | Removed; picks discarded "as if a bye" | Assumed void, 0 for everyone | ✅ Effectively the same |
 | Postponed games | Added back when rescheduled; same-week cases at admin discretion | Stay in original week; picks stay locked; scored when played | ⚠️ Possibly differs |
-| Line unavailable ("OFF") | No picks until posted; becomes 0 (straight up) if still missing at kickoff | Week can't publish until commissioner enters a line | ⚠️ Differs |
+| Line unavailable ("OFF") | No picks until posted; straight up (0 line) if still missing at kickoff | No picks until posted; void for the week if still missing at the first kickoff of the week | ⚠️ Fallback differs |
 | Pick visibility | Visible when the game starts; all visible after the deadline | Visible when each game locks | ✅ Effectively the same |
 | Reminders | 24 h before deadline + 8 h before Thursday game | Thu 12:00 PT + Sun 08:00 PT | Minor difference |
 
 ## 2. Divergences in detail
 
-### 2.1 Line capture time and which line ⚠️
+### 2.1 Line capture time and which line ✅
 - **OPS:** offers three line settings: *Variable* (the line at the moment each player picks),
   *Fixed Opening Line*, and *Closing Line*. "The opening line is set Tuesday AM around 4am MST."
   Our understanding that "the spread is locked Tuesday morning" matches **Fixed Opening Line**,
   captured at about **3:00 AM Pacific**.
-- **Ours:** snapshot at a configurable time, default **Tuesday 12:00 PM PT**.
-- **Impact:** lines usually move a little between the overnight open and noon, often by half a
-  point or more on games with injury news. Ours will reflect more Tuesday news but won't match
-  the "opening line" the group is used to. Setting our lock to ~03:00 PT would mirror OPS. The noon
-  default is a deliberate decision, so this is a "confirm you're happy with it" item, not a bug.
+- **Ours (decided):** snapshot at a configurable time, default **Tuesday 3:00 AM PT**, chosen to match
+  OPS. (The original noon default was dropped.) Lines can still differ slightly because of the
+  line source (§2.2) and half-point rounding (§2.3).
 
 ### 2.2 Line source ⚠️
 - **OPS:** "Lines sourced from ESPN," which is a single consensus-style feed.
@@ -100,14 +98,13 @@ uses; see the checklist in §4.
   clear whether picks reopen. **Ours:** the game stays in its week, picks stay locked against the
   original line, and it's scored when played (decided).
 
-### 2.9 Lines that are "OFF" ⚠️ (gap in our design)
+### 2.9 Lines that are "OFF" ⚠️ (differs only in the fallback)
 - **OPS:** if a game has no line (e.g., a QB injury takes it off the board), "a pick is not allowed
   for that game." When a line is posted it is used; if still missing at kickoff, the game is scored
   **straight up (0-point spread)**.
-- **Ours:** the week can't be published until the commissioner enters a line for every game.
-- **Recommendation:** publish the week anyway, mark that game "OFF" (no picks allowed), and lock in
-  the first line posted after it comes back. That needs a rule decision, because a 0 line conflicts
-  with "always a half point" (see 06).
+- **Ours (decided):** same until a line appears: the game is unpickable and the first line posted is
+  used. The difference is the cutoff: if no line appears by the **first kickoff of the week**
+  (normally Thursday night), the game is **void for the week** rather than picked straight up.
 
 ### 2.10 Minor differences
 - **Reminders:** OPS sends one reminder 24 h before the league deadline and one 8 h before the

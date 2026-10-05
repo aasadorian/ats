@@ -50,13 +50,21 @@ game_lock_at = min(game.kickoff_at, week_lock_at)
 - The Monday night tiebreaker guess locks with the week (Sunday 10:00 AM PT).
 
 ### 2.3 Spreads ✅
-- Spreads are **locked once per week** at a configurable time, default **Tuesday 12:00 PM Pacific**.
+- Spreads are **locked once per week** at a configurable time, default **Tuesday 3:00 AM Pacific**, matching when OfficePoolStop captures its fixed opening line.
 - After lock, the line does not move in our system even if Vegas moves.
 - **Every line is a half point** (e.g. `-3.5`, `+6.5`, never `-3` or `PK`), so **pushes are impossible**.
   The database rejects any line that isn't `x.5`.
 - **Rounding rule ✅ — the favorite gives the extra half point.** A whole-number line moves half a
   point against the favorite: `KC -3 / BUF +3` becomes `KC -3.5 / BUF +3.5`, so a 3-point KC win
   covers for BUF. A pick'em (0) becomes `-0.5` for the moneyline favorite (or the home team if even).
+- **Games with no line ("OFF") ✅.** If a game has no line at spread lock (e.g., a QB injury takes it
+  off the board), it is **unpickable until a line appears**. The rest of the week opens normally.
+  - The first line posted after that (or one the commissioner enters) is normalized to a half point
+    and locked, like any other line.
+  - **Cutoff: kickoff of the first game of the week** (normally the Thursday night game). If no line
+    appears by then, the game is **void for the week**: nobody can pick it, it can't be a best bet,
+    and it's worth 0 for everyone. A line appearing after the cutoff is ignored.
+  - A void game can still be the **tiebreaker game**. The tiebreaker uses its final score, not its line.
 - Source of the spread is an odds feed (see [05](05-data-sources.md)); the commissioner can
   override any line (still half-point) before or after lock, with an audit trail.
 - Picks can't be made until the week's spreads are locked/published.
@@ -140,7 +148,9 @@ entity so a second league (or a test league) is trivial later.
 - Weekly spread review screen: see fetched lines, edit, then publish/lock
 - League settings page covering every MVP setting in [08](08-league-settings.md), with defaults
   matching our league, audit history, and the mid-season change rules from 08 §3
-- OFF-line handling: games with no line show as unpickable until a line is posted or entered
+- OFF-line handling: games with no line show as "OFF — no line yet" and are unpickable until a line
+  is posted or entered; marked "void this week" if there's still no line at the first kickoff of the week.
+  Members are emailed when an OFF game becomes pickable.
 - Score correction screen for a game (in case a feed is wrong)
 - Member management (invite, deactivate, reset)
 - Audit log of overrides

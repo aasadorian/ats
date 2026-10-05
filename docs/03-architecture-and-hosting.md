@@ -49,7 +49,7 @@ sequenceDiagram
     participant Members
     participant Comm as Commissioner
 
-    Note over Cron,App: Tuesday 12:00 PM PT — spread lock (configurable)
+    Note over Cron,App: Tuesday 3:00 AM PT — spread lock (configurable)
     Cron->>Feeds: fetch current spreads for week N
     Cron->>App: normalize to half points, snapshot, mark week N "published"
     App-->>Comm: email: lines locked (review/override link)
@@ -87,7 +87,7 @@ That way a late or missed cron run can never leave a game unlocked.
 | Job | Schedule | Purpose |
 |-----|----------|---------|
 | `sync_schedule` | Daily 05:00 PT (in-season) | Pull schedule; catch kickoff time changes / flex scheduling |
-| `lock_spreads` | Every 15 min; acts once `now >= week.spreads_lock_at` (default Tue 12:00 PM PT) | Fetch lines, normalize to half points, snapshot as the week's locked spreads |
+| `lock_spreads` | Every 15 min; acts once `now >= week.spreads_lock_at` (default Tue 3:00 AM PT) | Fetch lines, normalize to half points, snapshot as the week's locked spreads |
 | `refresh_lines` | Every 2 h Tue–Sun, plus at each game's lock | Only when needed: current lines for `variable` mode, `closing` snapshots for closing mode, and filling OFF lines once posted. A no-op for the default fixed-at-lock mode with no OFF games. |
 | `sync_scores` | Every 5 min (cheap no-op outside game windows) | Update scores/status; grade finals |
 | `send_reminders` | Every 15 min; sends at the league's configured `reminder_times` (default Thu 12:00, Sun 08:00 PT) | Email members with unpicked open games, a missing best bet, or a missing tiebreaker guess |

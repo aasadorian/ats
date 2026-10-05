@@ -30,7 +30,7 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-05 | Host on a managed PaaS (Render recommended) with managed Postgres and cron jobs | [03](03-architecture-and-hosting.md) |
 | 2026-10-05 | League timezone is Pacific (`America/Los_Angeles`); storage in UTC | [01](01-product-requirements.md) |
 | 2026-10-05 | Pick lock: games before Sunday 10:00 AM PT lock at their own kickoff; all others lock Sunday 10:00 AM PT (configurable) | [01](01-product-requirements.md), [04](04-data-model.md) |
-| 2026-10-05 | Spread lock is configurable per league season; default Tuesday 12:00 PM PT | [01](01-product-requirements.md), [03](03-architecture-and-hosting.md), [04](04-data-model.md) |
+| 2026-10-05 | Spread lock is configurable per league season; default Tuesday 12:00 PM PT (superseded below) | [01](01-product-requirements.md), [03](03-architecture-and-hosting.md), [04](04-data-model.md) |
 | 2026-10-05 | All lines are half points, so pushes are impossible (enforced by a DB constraint) | [01](01-product-requirements.md), [04](04-data-model.md), [05](05-data-sources.md) |
 | 2026-10-05 | Weekly winner = most points (best bet = 3); tiebreaker = closest guess of Monday night game total points | [01](01-product-requirements.md), [04](04-data-model.md) |
 | 2026-10-05 | Lock settings and locked spreads are per league (`LeagueSeason`/`LeagueWeek`), with per-week overrides | [04](04-data-model.md) |
@@ -44,6 +44,8 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-05 | Canonical spread = median line across US sportsbooks at lock time | [05](05-data-sources.md) |
 | 2026-10-05 | Rules are commissioner-configurable, modeled on OfficePoolStop's manager settings; our league's rules are the defaults; typed `LeagueSettings` model replaces the `rules` JSON | [08](08-league-settings.md), [04](04-data-model.md) |
 | 2026-10-05 | Ties left after the tiebreaker guess are always split (weekly and season); not configurable | [08](08-league-settings.md) |
+| 2026-10-05 | Default spread lock changed to Tuesday 3:00 AM PT to match OfficePoolStop's opening-line capture | [01](01-product-requirements.md), [08](08-league-settings.md) |
+| 2026-10-05 | OFF lines: game unpickable until a line appears; void for the week if no line by the first kickoff of the week (normally Thursday night) | [01](01-product-requirements.md), [04](04-data-model.md), [08](08-league-settings.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status

@@ -80,9 +80,9 @@ class ScoreProvider(Protocol):
 - **Cancelled outright** (e.g., 2022 BUF–CIN, never completed): assumed void, 0 points for everyone;
   commissioner marks it `cancelled` so the week can close. Still to confirm (06).
 - **Missing ("OFF") line at lock time** (e.g., QB injury takes a game off the board): handled by
-  `off_line_handling`. By default the week publishes with that game unpickable; `refresh_lines`
-  fills the line once it's posted (normalized and locked the same way), or the commissioner enters
-  one. If there's still no line at the game's lock, `off_line_fallback` applies (default: favorite
-  `-0.5`).
+  `off_line_handling` ✅. The week publishes with that game unpickable; `refresh_lines` fills the
+  line once it's posted (normalized and locked the same way), or the commissioner enters one. If
+  there's still no line at the **first kickoff of the week** (normally Thursday night), the game is
+  **void for the week** (`off_line_fallback = void`).
 - **Neutral-site / international games**: feed still names a nominal home team; nothing special needed.
 - **Pick'em lines (0)**: converted to ±0.5 (see half-point normalization above).

@@ -33,13 +33,14 @@ come after launch.
 | Setting | Options | Default | Phase |
 |---------|---------|---------|-------|
 | `line_mode` | `fixed_at_lock` (snapshot at spread lock), `variable` (each pick keeps the line when it was made), `closing` (line at kickoff) | `fixed_at_lock` | MVP: fixed; Later: variable, closing |
-| `spread_lock_weekday` / `spread_lock_time` | any weekday/time | Tue 12:00 | MVP |
+| `spread_lock_weekday` / `spread_lock_time` | any weekday/time | Tue 03:00 (matches OPS opening-line capture) | MVP |
 | `line_source` | `median_us_books`, or a specific sportsbook | `median_us_books` | MVP |
 | `half_point_lines` | on: every line forced to x.5, so no pushes; off: lines as published, pushes possible | on | MVP |
 | `half_point_rounding` | `favorite_gives` (`-3 → -3.5`), `favorite_gets` (`-3 → -2.5`) | `favorite_gives` | MVP |
 | `push_scoring` | used only when `half_point_lines` is off: `half_points`, `loss`, `win` | `half_points` | MVP |
 | `off_line_handling` | when a game has no line at spread lock: `unpickable_until_posted`, `hold_week` (week waits for commissioner) | `unpickable_until_posted` | MVP |
-| `off_line_fallback` | if still no line at the game's lock: `favorite_minus_half`, `pickem_straight_up`, `void` | `favorite_minus_half` | MVP |
+| `off_line_cutoff` | the last moment a late line can still be accepted: `first_kickoff_of_week` (normally the Thursday night game), or `game_lock` | `first_kickoff_of_week` | MVP |
+| `off_line_fallback` | if there's still no line at the cutoff: `void` (unpickable for the week), `favorite_minus_half`, `pickem_straight_up` | `void` | MVP |
 
 ### 1.4 Deadlines and locks
 | Setting | Options | Default | Phase |

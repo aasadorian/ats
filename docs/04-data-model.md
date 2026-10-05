@@ -151,7 +151,7 @@ interpreted in `league.timezone` (default `America/Los_Angeles`, DST-aware).
 
 ### LeagueWeek — the concrete schedule for one week
 - `spreads_lock_at`, `picks_lock_at` — UTC datetimes **computed** from `LeagueSettings`
-  when the week is created (e.g., the Tuesday before `week.sunday` at 12:00 PT, and `week.sunday`
+  when the week is created (e.g., the Tuesday before `week.sunday` at 03:00 PT, and `week.sunday`
   at 10:00 PT). Stored, so the commissioner can **override a single week** (holiday weeks, etc.)
   without changing the season defaults.
 - `tiebreaker_game` — the game whose total points (or margin, per `tiebreaker_type`) decide weekly
@@ -188,8 +188,11 @@ def lock_at(game, league_week, settings) -> datetime:
   on each pick instead (see Pick).
 - `home_line` — the line from the **home team's perspective** (e.g., `-3.5` = home favored by 3.5).
   The away line is always `-home_line`. Storing one number avoids inconsistent pairs.
-  **Nullable**: `null` means the line is **OFF** (no line available). The game is unpickable until a
-  line is set, and `off_line_fallback` applies at the game's lock.
+  **Nullable**: `null` means no line is available.
+- `status` — `posted` (normal), `off` (no line yet; game unpickable), or `void` (still no line at the
+  `off_line_cutoff`, default the first kickoff of the week). A `void` game takes no picks or best
+  bets, and scores 0 for everyone. `refresh_lines` moves `off → posted` when a line appears before
+  the cutoff, and `off → void` at the cutoff. Lines that appear after the cutoff are ignored.
 - **Half points:** when `half_point_lines` is on (default), the service layer only saves values ending
   in `.5`, so pushes can't happen. Turning it off allows whole numbers and pushes (`push_scoring`).
 - `feed_line` — the raw value from the feed before half-point normalization (may be whole), kept for transparency.
