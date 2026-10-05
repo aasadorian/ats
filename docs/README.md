@@ -18,6 +18,7 @@ with one weekly **best bet** worth 3 points.
 | 08 | [League Settings](08-league-settings.md) | Every commissioner-configurable rule, defaults, MVP vs. Later, mid-season change rules |
 | 09 | [User Management](09-user-management.md) | Accounts, login, invites, roles and permissions, member lifecycle, account security |
 | 10 | [Activity Log](10-activity-log.md) | Append-only log of lines, picks, scores, settings, membership and security events; who sees what |
+| ADR | [Architecture Decision Records](adr/README.md) | Major technical decisions with options considered (e.g., [0001 Django](adr/0001-web-framework-django.md)) |
 
 ## Decision log
 
@@ -25,7 +26,7 @@ Short record of decisions made so far. Add a row whenever something is settled.
 
 | Date | Decision | Doc |
 |------|----------|-----|
-| 2026-10-05 | Python / Django monolith with server-rendered templates + HTMX (no SPA) | [02](02-tech-stack.md) |
+| 2026-10-05 | Python / Django monolith with server-rendered templates + HTMX (no SPA) | [02](02-tech-stack.md), [ADR 0001](adr/0001-web-framework-django.md) |
 | 2026-10-05 | PostgreSQL as the database | [02](02-tech-stack.md) |
 | 2026-10-05 | Spreads snapshotted once per week at a configured lock time; commissioner can override | [01](01-product-requirements.md), [05](05-data-sources.md) |
 | 2026-10-05 | Standings are computed from picks + final scores, never hand-edited | [04](04-data-model.md) |

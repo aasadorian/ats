@@ -32,6 +32,8 @@
 
 ## Why Django
 
+> Full evaluation of the alternatives, with weighted scoring: [ADR 0001](adr/0001-web-framework-django.md).
+
 This app is a classic CRUD-plus-business-rules site: users, a schedule, picks, a scoring
 function, leaderboards, and a commissioner back office. Django fits that shape nearly perfectly:
 
