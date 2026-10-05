@@ -122,9 +122,12 @@ entity so a second league (or a test league) is trivial later.
 ### 4.1 MVP (needed to replace the current site)
 
 **Accounts**
-- Invite-only signup via a commissioner-generated link
-- Login with email + password, plus "magic link" / Google login if cheap to add
-- Password reset by email
+- Invite-only signup: email invites that expire, can only be used once and only by the invited email
+- Login with email + password and email magic link; Google sign-in optional
+- Password reset by email; MFA optional for members, required for commissioners
+- Profile: display name, timezone, email preferences, sign out everywhere, delete account
+- Commissioner member management: invite, resend/revoke, change role, deactivate/reactivate
+- Full design: [09 User Management](09-user-management.md)
 
 **Making picks**
 - Week view listing every game: kickoff time (local tz), teams, locked spread, pick buttons

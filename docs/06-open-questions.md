@@ -16,7 +16,7 @@ the decision log in [README](README.md), and update the relevant doc.
 
 ## Product — open
 4. Others' picks hidden until each game locks (current design), or visible earlier?
-5. Login method preference — email+password, magic link, Google? (Can support several.)
+5. Login method preference — email+password, magic link, Google? (Can support several; [09](09-user-management.md) recommends email+password plus magic link for MVP.)
 6. Import past seasons from officepoolstop? If so, can we export CSV/HTML from it?
 7. Entry fees / payouts — track in-app (record only) or keep off-app?
 8. Notification channels — email only for MVP, or also SMS/push?

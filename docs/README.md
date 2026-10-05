@@ -16,6 +16,7 @@ with one weekly **best bet** worth 3 points.
 | 06 | [Open Questions](06-open-questions.md) | Rule and product decisions still to be made |
 | 07 | [OfficePoolStop Comparison](07-officepoolstop-comparison.md) | Where our rules and features differ from the site we're replacing |
 | 08 | [League Settings](08-league-settings.md) | Every commissioner-configurable rule, defaults, MVP vs. Later, mid-season change rules |
+| 09 | [User Management](09-user-management.md) | Accounts, login, invites, roles and permissions, member lifecycle, account security |
 
 ## Decision log
 
@@ -46,6 +47,7 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-05 | Ties left after the tiebreaker guess are always split (weekly and season); not configurable | [08](08-league-settings.md) |
 | 2026-10-05 | Default spread lock changed to Tuesday 3:00 AM PT to match OfficePoolStop's opening-line capture | [01](01-product-requirements.md), [08](08-league-settings.md) |
 | 2026-10-05 | OFF lines: game unpickable until a line appears; void for the week if no line by the first kickoff of the week (normally Thursday night) | [01](01-product-requirements.md), [04](04-data-model.md), [08](08-league-settings.md) |
+| 2026-10-05 | User management on django-allauth: invite-only, custom email-based User model, Argon2 passwords with breached-password checks, MFA required for commissioners, league-scoped roles, soft-delete members | [09](09-user-management.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status

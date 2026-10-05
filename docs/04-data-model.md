@@ -21,11 +21,27 @@ erDiagram
     MEMBERSHIP ||--o{ WEEKLY_ENTRY : submits
     LEAGUE_WEEK ||--o{ WEEKLY_ENTRY : "tiebreaker for"
     USER ||--o{ AUDIT_EVENT : performs
+    LEAGUE ||--o{ INVITE : issues
+    USER ||--o{ INVITE : sends
 
     USER {
         int id
-        string email
+        string email "unique, case-insensitive"
         string display_name
+        string timezone
+        bool is_active
+        datetime last_login
+    }
+    INVITE {
+        int id
+        int league_id
+        string email
+        string role
+        string token_hash
+        int invited_by_id
+        datetime expires_at
+        datetime accepted_at
+        datetime revoked_at
     }
     LEAGUE {
         int id
@@ -39,6 +55,7 @@ erDiagram
         int league_id
         string role
         bool is_active
+        datetime deactivated_at
     }
     SEASON {
         int id
@@ -134,6 +151,9 @@ erDiagram
         datetime at
     }
 ```
+
+**Accounts** (`User`, `Invite`, `Membership`, plus allauth's tables and `NotificationPreference`)
+are specified in [09 User Management](09-user-management.md).
 
 **Global NFL data** (`Season`, `Week`, `Team`, `Game`) is shared by all leagues and filled in by the
 feed sync jobs.

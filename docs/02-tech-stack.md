@@ -91,7 +91,7 @@ ats/
 ├── manage.py
 ├── config/                # settings (base/dev/prod), urls, wsgi
 ├── apps/
-│   ├── accounts/          # user, profile, invites
+│   ├── accounts/          # custom user, profile, invites, allauth config (see 09)
 │   ├── leagues/           # league, season, membership, rules config
 │   ├── nfl/               # team, week, game, spread; feed clients
 │   ├── picks/             # pick model, pick-making views, lock logic
