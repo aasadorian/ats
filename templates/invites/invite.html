@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Join {{ invite.league.name }}{% endblock title %}
+{% block content %}
+  <h1>Join {{ invite.league.name }}</h1>
+  <p>This invite was sent to {{ invite.email }}.</p>
+  {% if user.is_authenticated %}
+    {% if email_matches %}
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit">Join league</button>
+      </form>
+    {% else %}
+      <p>
+        You're signed in as {{ user.email }}. Sign out and sign in as {{ invite.email }} to
+        accept this invite.
+      </p>
+    {% endif %}
+  {% elif has_account %}
+    <p>
+      <a href="{% url 'account_login' %}?next={{ next|urlencode }}">Sign in to accept</a>
+    </p>
+  {% else %}
+    <p>
+      <a href="{% url 'account_signup' %}">Create your account</a>
+    </p>
+  {% endif %}
+{% endblock content %}

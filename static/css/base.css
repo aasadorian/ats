@@ -25,3 +25,36 @@ main {
   margin: 0 auto;
   padding: 1rem;
 }
+
+.messages {
+  list-style: none;
+  padding: 0;
+}
+
+.message {
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.25rem;
+  background: #e4f7f1;
+}
+
+.message.error,
+.message.warning {
+  background: #fdecea;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.4rem;
+  text-align: left;
+  border-bottom: 1px solid #d9e2ec;
+}
+
+.actions form {
+  display: inline;
+}

@@ -57,8 +57,12 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-06 | Local development uses native PostgreSQL 17 on Windows; Python 3.13 managed by uv | [12](12-roadmap.md), [README](../README.md) |
 | 2026-10-06 | Build order: skeleton, NFL data, leagues and members, lines, picks, scoring, launch prep | [12](12-roadmap.md) |
 | 2026-10-06 | NFL weeks come from ESPN's season calendar; `Week.sunday` = last Sunday (Pacific) in the week window; type-checked admin via django-stubs-ext | [05](05-data-sources.md), [12](12-roadmap.md) |
+| 2026-10-06 | Display names are unique across the whole site (case-insensitive), stricter than per-league | [09](09-user-management.md) |
+| 2026-10-06 | Security events are recorded from auth-library signals (the one exception to service-layer logging) | [10](10-activity-log.md) |
+| 2026-10-06 | Commissioner two-factor requirement is on by default and can be disabled only via the `COMMISSIONER_MFA_REQUIRED` environment setting | [12](12-roadmap.md) |
+| 2026-10-06 | League settings are edited in Django admin until the commissioner settings page in milestone 6 | [12](12-roadmap.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status
 
-Milestone 0 (project skeleton) complete; see [12 Roadmap](12-roadmap.md).
+Milestones 0-2 complete (skeleton, NFL data, leagues and members); see [12 Roadmap](12-roadmap.md).

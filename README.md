@@ -41,3 +41,11 @@ uv run pytest
 ```
 
 Coding standards: [docs/11-coding-standards.md](docs/11-coding-standards.md).
+
+## Creating a league locally
+```
+uv run python manage.py sync_schedule --season 2026
+uv run python manage.py create_league --name "Office ATS" --slug office --season 2026 --commissioner-email you@example.com
+```
+Commissioner pages require two-factor authentication; set `COMMISSIONER_MFA_REQUIRED=false` in
+`.env` to skip it during local development.

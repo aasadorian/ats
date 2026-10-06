@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 from django.db import transaction
 
+from apps.activity.services import record_event
 from apps.nfl.feeds.types import GameData, ScheduleProvider, TeamData, WeekData
 from apps.nfl.models import Game, GameStatus, Season, Team, Week
 
@@ -102,11 +103,24 @@ def _upsert_game(
         # postponed and the game stays in its original week.
         game.postponed_from = game.kickoff_at
         result.postponed.append(str(game))
+        record_event(
+            event_type="game.postponed",
+            summary=f"{game} postponed",
+            obj=game,
+            before={"kickoff_at": game.kickoff_at.isoformat()},
+        )
     elif game.postponed_from is None:
         game.week = week_by_number[data.week_number]
 
     if game.kickoff_at != data.kickoff_at:
         result.rescheduled.append(str(game))
+        record_event(
+            event_type="game.rescheduled",
+            summary=f"{game} moved to {data.kickoff_at:%Y-%m-%d %H:%M} UTC",
+            obj=game,
+            before={"kickoff_at": game.kickoff_at.isoformat()},
+            after={"kickoff_at": data.kickoff_at.isoformat()},
+        )
 
     changed = [name for name, value in fields.items() if getattr(game, name) != value]
     for name in changed:

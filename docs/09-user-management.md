@@ -20,7 +20,7 @@ building our own.
   strongly recommends this because swapping it later is painful.
 - **Email is the login identifier**, unique and case-insensitive (stored lowercased, unique index on
   `lower(email)`). There's no separate username.
-- Fields: `email`, `display_name` (shown on leaderboards, unique within a league), `timezone`
+- Fields: `email`, `display_name` (shown on leaderboards; unique across the site, case-insensitive), `timezone`
   (defaults to the league's), `is_active`, `date_joined`, `last_login`.
 
 ### 2.2 Login methods

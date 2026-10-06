@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ league.name }}{% endblock title %}
+{% block content %}
+  <h1>{{ league.name }}</h1>
+  {% if membership.is_commissioner %}
+    <p>
+      <a href="{% url 'leagues:members' league.slug %}">Manage members</a>
+    </p>
+  {% endif %}
+  <h2>Members</h2>
+  <ul>
+    {% for member in members %}
+      <li>
+        {{ member.user }}
+        {% if member.is_commissioner %}(commissioner){% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}

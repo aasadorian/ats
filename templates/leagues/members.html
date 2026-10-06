@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Members - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+  </p>
+  <h1>Members</h1>
+  <h2>Invite someone</h2>
+  <form method="post" class="stack">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Send invite</button>
+  </form>
+  <h2>Pending invites</h2>
+  {% if invites %}
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Expires</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invite in invites %}
+          <tr>
+            <td>{{ invite.email }}</td>
+            <td>{{ invite.get_role_display }}</td>
+            <td>{{ invite.expires_at|date:"M j" }}</td>
+            <td class="actions">
+              <form method="post"
+                    action="{% url 'leagues:invite_resend' league.slug invite.pk %}">
+                {% csrf_token %}
+                <button type="submit">Resend</button>
+              </form>
+              <form method="post"
+                    action="{% url 'leagues:invite_revoke' league.slug invite.pk %}">
+                {% csrf_token %}
+                <button type="submit">Revoke</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No pending invites.</p>
+  {% endif %}
+  <h2>League members</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in memberships %}
+        <tr>
+          <td>{{ member.user }}</td>
+          <td>{{ member.user.email }}</td>
+          <td>
+            <form method="post"
+                  action="{% url 'leagues:membership_role' league.slug member.pk %}">
+              {% csrf_token %}
+              <select name="role" aria-label="Role for {{ member.user }}">
+                {% for value, label in roles %}
+                  <option value="{{ value }}" {% if member.role == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit">Update</button>
+            </form>
+          </td>
+          <td>
+            {% if member.is_active %}
+              Active
+            {% else %}
+              Inactive
+            {% endif %}
+          </td>
+          <td class="actions">
+            {% if member.is_active %}
+              <form method="post"
+                    action="{% url 'leagues:membership_deactivate' league.slug member.pk %}">
+                {% csrf_token %}
+                <button type="submit">Deactivate</button>
+              </form>
+            {% else %}
+              <form method="post"
+                    action="{% url 'leagues:membership_reactivate' league.slug member.pk %}">
+                {% csrf_token %}
+                <button type="submit">Reactivate</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}

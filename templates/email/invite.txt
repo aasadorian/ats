@@ -1,0 +1,6 @@
+{{ invite.invited_by }} invited you to join {{ invite.league.name }}, an NFL pick'em league.
+
+Accept your invite:
+{{ url }}
+
+This link works once and expires on {{ expires|date:"M j, Y" }}. It only works for {{ invite.email }}.

@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
   <h1>Welcome, {{ user }}</h1>
-  <p>Picks, standings and league tools are coming soon.</p>
+  {% if memberships %}
+    <h2>Your leagues</h2>
+    <ul>
+      {% for membership in memberships %}
+        <li>
+          <a href="{% url 'leagues:home' membership.league.slug %}">{{ membership.league.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You aren't in a league yet. Ask your commissioner for an invite.</p>
+  {% endif %}
 {% endblock content %}

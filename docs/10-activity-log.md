@@ -15,7 +15,9 @@ It replaces the earlier `AuditEvent` table with one `ActivityEvent` table used f
   of a change that didn't happen.
 - **Explicit, not magic.** Events are written by the service-layer functions that make the change
   (`picks.services.save_pick()` calls `record_event(...)`), not by Django model signals. Signals
-  miss bulk updates and don't know who the actor was or why.
+  miss bulk updates and don't know who the actor was or why. **Exception:** security events
+  (logins, password and MFA changes) are recorded from Django's and allauth's signals in
+  `apps/accounts/signals.py`, because the authentication libraries expose those events only as signals.
 - **Append-only.** Entries are never edited or deleted by the app (see §6).
 - **Respects pick secrecy.** A pick event is never shown to other members before that game's picks
   are revealed (same rule as [04 §4](04-data-model.md)).

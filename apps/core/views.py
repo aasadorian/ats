@@ -4,10 +4,18 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 
+from apps.accounts.utils import request_user
+
 
 @login_required
 def home(request: HttpRequest) -> HttpResponse:
-    return render(request, "core/home.html")
+    memberships = (
+        request_user(request)
+        .memberships.filter(is_active=True)
+        .select_related("league")
+        .order_by("league__name")
+    )
+    return render(request, "core/home.html", {"memberships": memberships})
 
 
 @require_GET

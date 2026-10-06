@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import django_stubs_ext
 import environ
@@ -14,6 +15,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = False
 ALLOWED_HOSTS: list[str] = env.list("DJANGO_ALLOWED_HOSTS", default=[])
 ADMIN_URL: str = env("DJANGO_ADMIN_URL", default="admin/")
+SITE_URL: str = env("SITE_URL", default="http://localhost:8000")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -29,6 +31,8 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.core",
     "apps.nfl",
+    "apps.activity",
+    "apps.leagues",
 ]
 
 MIDDLEWARE = [
@@ -42,6 +46,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
+    "apps.activity.middleware.EventContextMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -81,7 +86,7 @@ PASSWORD_HASHERS = [
 ]
 
 _VALIDATORS = "django.contrib.auth.password_validation"
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS: list[dict[str, Any]] = [
     {
         "NAME": f"{_VALIDATORS}.UserAttributeSimilarityValidator",
         "OPTIONS": {"user_attributes": ("email", "display_name")},
@@ -92,6 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {"NAME": f"{_VALIDATORS}.CommonPasswordValidator"},
     {"NAME": f"{_VALIDATORS}.NumericPasswordValidator"},
+    {"NAME": "apps.accounts.validators.PwnedPasswordValidator"},
 ]
 
 ACCOUNT_LOGIN_METHODS = {"email"}
@@ -104,7 +110,9 @@ ACCOUNT_PREVENT_ENUMERATION = True
 ACCOUNT_SESSION_REMEMBER = None
 ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
 ACCOUNT_ADAPTER = "apps.accounts.adapters.InviteOnlyAccountAdapter"
+ACCOUNT_SIGNUP_FORM_CLASS = "apps.accounts.forms.SignupDetailsForm"
 MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
+COMMISSIONER_MFA_REQUIRED = env.bool("COMMISSIONER_MFA_REQUIRED", default=True)
 
 LOGIN_REDIRECT_URL = "core:home"
 LOGIN_URL = "account_login"

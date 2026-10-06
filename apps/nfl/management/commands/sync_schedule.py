@@ -4,7 +4,10 @@ from typing import Any
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
+from apps.activity.context import event_context
+from apps.leagues.services import refresh_league_weeks
 from apps.nfl.feeds.espn import EspnFeedError, EspnScheduleProvider
+from apps.nfl.models import Season
 from apps.nfl.services import sync_schedule
 
 
@@ -23,9 +26,11 @@ class Command(BaseCommand):
     def handle(self, *args: Any, **options: Any) -> None:
         season = options["season"] or current_season_year()
         try:
-            result = sync_schedule(
-                EspnScheduleProvider(), season_year=season, weeks=options["weeks"]
-            )
+            with event_context("job:sync_schedule"):
+                result = sync_schedule(
+                    EspnScheduleProvider(), season_year=season, weeks=options["weeks"]
+                )
+                refresh_league_weeks(Season.objects.get(year=season))
         except EspnFeedError as exc:
             raise CommandError(str(exc)) from exc
 
