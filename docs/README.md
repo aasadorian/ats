@@ -18,6 +18,7 @@ with one weekly **best bet** worth 3 points.
 | 08 | [League Settings](08-league-settings.md) | Every commissioner-configurable rule, defaults, MVP vs. Later, mid-season change rules |
 | 09 | [User Management](09-user-management.md) | Accounts, login, invites, roles and permissions, member lifecycle, account security |
 | 10 | [Activity Log](10-activity-log.md) | Append-only log of lines, picks, scores, settings, membership and security events; who sees what |
+| 11 | [Coding Standards](11-coding-standards.md) | PEP 8 + Django style + Google guide as reference; Ruff/mypy enforcement; minimal comments; no emojis |
 | ADR | [Architecture Decision Records](adr/README.md) | Major technical decisions with options considered (e.g., [0001 Django](adr/0001-web-framework-django.md)) |
 
 ## Decision log
@@ -51,6 +52,7 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-05 | OFF lines: game unpickable until a line appears; void for the week if no line by the first kickoff of the week (normally Thursday night) | [01](01-product-requirements.md), [04](04-data-model.md), [08](08-league-settings.md) |
 | 2026-10-05 | User management on django-allauth: invite-only, custom email-based User model, Argon2 passwords with breached-password checks, MFA required for commissioners, league-scoped roles, soft-delete members | [09](09-user-management.md) |
 | 2026-10-05 | Activity log: one append-only `ActivityEvent` table (replaces `AuditEvent`) for lines, picks, scores, settings, membership and security events; written in the same transaction as each change; pick events hidden from everyone, including the commissioner, until the game locks | [10](10-activity-log.md) |
+| 2026-10-05 | Coding standards: PEP 8 / 257 / 484 enforced by Ruff and mypy (strict), Django coding style, Google Python Style Guide as tie-breaker and docstring format; minimal comments; no emojis anywhere in code | [11](11-coding-standards.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status

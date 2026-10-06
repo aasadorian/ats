@@ -16,7 +16,7 @@
 | Static files | WhiteNoise |
 | App server | Gunicorn |
 | Dependency mgmt | `uv` |
-| Lint/format | Ruff |
+| Lint/format | Ruff (format + lint), mypy + django-stubs, djLint, pre-commit; see [11](11-coding-standards.md) |
 | Tests | pytest + pytest-django, `factory_boy`, `time-machine` for clock control |
 | Errors/monitoring | Sentry (free tier) + an uptime ping |
 | CI | GitHub Actions (lint + tests on PR, deploy on merge to `main`) |
