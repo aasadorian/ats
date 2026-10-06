@@ -42,6 +42,15 @@ the job alerts the commissioner and the week stays unpublished until lines are e
 - Free, no key, includes schedule, kickoff times, live status, and final scores.
 - **Caveat:** undocumented/unofficial; could change without notice. Wrap it behind an interface
   so it can be swapped.
+- **Implemented (milestone 1):** `apps/nfl/feeds/espn.py`, behind the `ScheduleProvider` protocol.
+  - **Weeks** come from the response's `leagues[0].calendar` (regular season = `value "2"`): each
+    week's start/end window. `Week.sunday` is the last Sunday (Pacific) in that window.
+  - **Status mapping:** `STATUS_POSTPONED` → postponed, `STATUS_CANCELED` → cancelled,
+    state `in` → in progress, state `post` + completed → final, otherwise scheduled.
+  - **TBD kickoffs** (`isTBDFlex`, or `timeValid` false) are flagged `Game.kickoff_is_tbd`.
+  - 19 requests per full sync (calendar + 18 weeks), about 3 seconds.
+  - Some weeks open on a **Wednesday** (2026: week 1 and week 12, Thanksgiving eve), which
+    confirms the "first kickoff of the week" wording for the OFF-line cutoff.
 
 ### Alternatives / backups
 | Source | Notes |

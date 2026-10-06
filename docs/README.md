@@ -56,6 +56,7 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-05 | Coding standards: PEP 8 / 257 / 484 enforced by Ruff and mypy (strict), Django coding style, Google Python Style Guide as tie-breaker and docstring format; minimal comments; no emojis anywhere in code | [11](11-coding-standards.md) |
 | 2026-10-06 | Local development uses native PostgreSQL 17 on Windows; Python 3.13 managed by uv | [12](12-roadmap.md), [README](../README.md) |
 | 2026-10-06 | Build order: skeleton, NFL data, leagues and members, lines, picks, scoring, launch prep | [12](12-roadmap.md) |
+| 2026-10-06 | NFL weeks come from ESPN's season calendar; `Week.sunday` = last Sunday (Pacific) in the week window; type-checked admin via django-stubs-ext | [05](05-data-sources.md), [12](12-roadmap.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status

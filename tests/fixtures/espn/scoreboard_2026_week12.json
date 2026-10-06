@@ -1,0 +1,97 @@
+{
+  "season": {
+    "type": 2,
+    "year": 2026
+  },
+  "week": {
+    "number": 12
+  },
+  "events": [
+    {
+      "id": "401873079",
+      "date": "2026-11-26T01:00Z",
+      "shortName": "GB @ LAR",
+      "competitions": [
+        {
+          "id": "401873079",
+          "date": "2026-11-26T01:00Z",
+          "timeValid": true,
+          "neutralSite": false,
+          "status": {
+            "type": {
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            },
+            "isTBDFlex": false
+          },
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "0",
+              "team": {
+                "id": "14",
+                "abbreviation": "LAR",
+                "location": "Los Angeles",
+                "name": "Rams"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "0",
+              "team": {
+                "id": "9",
+                "abbreviation": "GB",
+                "location": "Green Bay",
+                "name": "Packers"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873081",
+      "date": "2026-11-26T18:00Z",
+      "shortName": "CHI @ DET",
+      "competitions": [
+        {
+          "id": "401873081",
+          "date": "2026-11-26T18:00Z",
+          "timeValid": true,
+          "neutralSite": false,
+          "status": {
+            "type": {
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            },
+            "isTBDFlex": false
+          },
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "0",
+              "team": {
+                "id": "8",
+                "abbreviation": "DET",
+                "location": "Detroit",
+                "name": "Lions"
+              }
+            },
+            {
+              "homeAway": "away",
+              "score": "0",
+              "team": {
+                "id": "3",
+                "abbreviation": "CHI",
+                "location": "Chicago",
+                "name": "Bears"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -5,8 +5,8 @@ Build order. Each milestone ends with working, tested software committed to `mai
 | # | Milestone | Scope | Outcome | Status |
 |---|-----------|-------|---------|--------|
 | 0 | **Skeleton** | `uv` project, Django 5.2 with split settings, custom email `User` model, allauth login (signup closed), Ruff / mypy / djLint / pytest / pre-commit / no-emoji check, GitHub Actions CI with Postgres, health endpoint, setup docs | `runserver` works; every commit is checked | Done (2026-10-06) |
-| 1 | **NFL data** | `Team`, `Season`, `Week`, `Game`; ESPN schedule client; `sync_schedule` command | Real 2026 schedule in the database | Next |
-| 2 | **Leagues and members** | `League`, `LeagueSeason`, `LeagueSettings`, `LeagueWeek`, `Membership`, `Invite` and invite signup; `ActivityEvent` and `record_event()`; MFA for commissioners | A commissioner can invite people who sign up | |
+| 1 | **NFL data** | `Team`, `Season`, `Week`, `Game`; ESPN schedule client; `sync_schedule` command | Real 2026 schedule in the database | Done (2026-10-06) |
+| 2 | **Leagues and members** | `League`, `LeagueSeason`, `LeagueSettings`, `LeagueWeek`, `Membership`, `Invite` and invite signup; `ActivityEvent` and `record_event()`; MFA for commissioners | A commissioner can invite people who sign up | Next |
 | 3 | **Lines** | Odds API client, median line, half-point normalization, `lock_spreads`, OFF / void handling, commissioner line review and override | Locked lines every Tuesday at 3 AM PT | |
 | 4 | **Picks** | Pick sheet (HTMX), best bet, tiebreaker guess, per-game and weekly locks, visibility rules | Members can play a week | |
 | 5 | **Scoring and standings** | `sync_scores`, grading, weekly winners with splits, season standings, best bet standings, postponed games | Full league loop | |
@@ -21,3 +21,14 @@ Build order. Each milestone ends with working, tested software committed to `mai
   alongside the other account work.
 - **The admin URL** comes from the `DJANGO_ADMIN_URL` environment variable, so production can use a
   non-default path ([09 §8](09-user-management.md)).
+
+## Milestone 1 notes
+- `uv run python manage.py sync_schedule --season 2026` loads all 18 weeks (272 games, 32 teams);
+  `--week N` (repeatable) limits it. Re-running is safe: it only updates what changed.
+- Postponement rule from [01 §2.4.1](01-product-requirements.md) is implemented in the sync: the
+  first time a game is seen as postponed, its previous kickoff is saved in `postponed_from` and the
+  game stays in its original week; flexed kickoffs move normally.
+- The sync records game status; `home_score` / `away_score` exist on `Game` but are filled by
+  `sync_scores` in milestone 5.
+- Activity events (`game.rescheduled`, `game.postponed`) are written once the activity log exists
+  (milestone 2); until then the sync logs them.

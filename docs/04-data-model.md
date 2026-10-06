@@ -86,6 +86,8 @@ erDiagram
         int id
         int season_id
         int number
+        datetime starts_at
+        datetime ends_at
         date sunday
     }
     LEAGUE_WEEK {
@@ -109,7 +111,9 @@ erDiagram
         int home_team_id
         int away_team_id
         datetime kickoff_at
+        bool kickoff_is_tbd
         datetime postponed_from
+        bool neutral_site
         string status
         int home_score
         int away_score
