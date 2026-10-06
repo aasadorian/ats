@@ -34,3 +34,15 @@ def lock_times(
         picks_lock_date(sunday, picks_weekday), picks_time, timezone_name
     )
     return spreads_at, picks_at
+
+
+def game_lock_at(
+    *,
+    kickoff_at: datetime,
+    postponed_from: datetime | None,
+    picks_lock_at: datetime,
+    offset_minutes: int,
+) -> datetime:
+    """When picks on a game lock; a postponement never reopens them."""
+    kickoff = postponed_from or kickoff_at
+    return min(kickoff - timedelta(minutes=offset_minutes), picks_lock_at)

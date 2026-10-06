@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load lines tz %}
+{% block title %}Lines - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+  </p>
+  <h1>Lines</h1>
+  {% if not weeks %}
+    <p>No season set up yet.</p>
+  {% else %}
+    <form method="get" class="week-picker">
+      <label for="week">Week</label>
+      <select id="week" name="week" onchange="this.form.submit()">
+        {% for league_week in weeks %}
+          <option value="{{ league_week.week.number }}"
+                  {% if league_week == selected %}selected{% endif %}>Week {{ league_week.week.number }}</option>
+        {% endfor %}
+      </select>
+      <noscript>
+        <button type="submit">Show</button>
+      </noscript>
+    </form>
+    {% timezone league.timezone %}
+      <p>
+        Status: <strong>{{ selected.get_status_display }}</strong>.
+        Lines lock {{ selected.spreads_lock_at|date:"D M j, g:i A" }};
+        picks lock {{ selected.picks_lock_at|date:"D M j, g:i A" }} ({{ league.timezone }}).
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Kickoff</th>
+              <th>Game</th>
+              <th>Home line</th>
+              <th>Feed</th>
+              <th>Books</th>
+              <th>Status</th>
+              <th>Override</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>{{ row.game.kickoff_at|date:"D g:i A" }}</td>
+                <td>{{ row.game.away_team }} @ {{ row.game.home_team }}</td>
+                {% if row.spread %}
+                  <td>
+                    {{ row.game.home_team }} {{ row.spread.home_line|line }}
+                    {% if row.spread.overridden %}(manual){% endif %}
+                  </td>
+                  <td>{{ row.spread.feed_line|default_if_none:"" }}</td>
+                  <td>
+                    {{ row.spread.book_count }}
+                    {% if row.spread.book_count < min_books and row.spread.status == "posted" and not row.spread.overridden %}
+                      <strong>Check</strong>
+                    {% endif %}
+                  </td>
+                  <td>{{ row.spread.get_status_display }}</td>
+                  <td>
+                    <form method="post"
+                          action="{% url 'lines:override' league.slug row.spread.pk %}"
+                          class="inline-form">
+                      {% csrf_token %}
+                      <input name="home_line"
+                             inputmode="decimal"
+                             size="5"
+                             aria-label="Line for {{ row.game.home_team }}"
+                             placeholder="-3.5">
+                      <input name="reason" size="12" aria-label="Reason" placeholder="Reason">
+                      <button type="submit">Set</button>
+                    </form>
+                  </td>
+                {% else %}
+                  <td colspan="5">Not locked yet</td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endtimezone %}
+  {% endif %}
+{% endblock content %}

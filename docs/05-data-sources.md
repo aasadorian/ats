@@ -7,9 +7,20 @@ We need three kinds of data: the **schedule** (once per season, with updates for
 
 ### Primary: The Odds API (the-odds-api.com)
 - Endpoint: `/v4/sports/americanfootball_nfl/odds?markets=spreads&regions=us`
-- Free tier (~500 requests/month). One call returns every game, so the default fixed-at-lock mode
-  needs ~1–2 calls per week. `variable`/`closing` line modes ([08](08-league-settings.md)) refresh
-  every ~2 h plus at game locks: roughly 30–40 calls/week, ~150/month, still within the free tier.
+- Free tier: 500 credits/month. A request costs 1 credit per market per region; we request
+  `spreads,h2h` (moneyline, used only to pick the favorite on pick'em lines) for region `us`, so
+  **2 credits per request**. One request returns every game in the week window.
+  - Default fixed-at-lock mode: 1 request per week at lock (~8 credits/month), plus at most one
+    request every 2 hours while a game is OFF (throttled; worst case ~60 credits for a line that
+    stays OFF from Tuesday to Thursday).
+  - `variable`/`closing` modes (later phase) would need more frequent requests; budget them then.
+- **Implemented (milestone 3):** `apps/lines/feeds/odds_api.py`.
+  - Games are matched by full team name (`Team.location + name`, which matches the feed's names
+    for all 32 teams); if the feed lists home and away the other way round (neutral sites), the
+    line is flipped.
+  - Every response is stored as an `OddsSnapshot`, so the raw data behind any locked line can be
+    checked later.
+  - Requires `ODDS_API_KEY` in `.env` (free key from the-odds-api.com).
 - Returns lines per bookmaker. **Canonical line ✅: the median home line across all US sportsbooks**
   the feed returns for that game at lock time (`line_source = "median_us_books"`). The
   `line_source` setting can instead name a single sportsbook.

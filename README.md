@@ -49,3 +49,11 @@ uv run python manage.py create_league --name "Office ATS" --slug office --season
 ```
 Commissioner pages require two-factor authentication; set `COMMISSIONER_MFA_REQUIRED=false` in
 `.env` to skip it during local development.
+
+## Lines
+Get a free API key at https://the-odds-api.com and add `ODDS_API_KEY=...` to `.env`, then:
+```
+uv run python manage.py lock_spreads
+```
+It locks lines for any week past its spread lock time (default Tuesday 3:00 AM Pacific) and is
+safe to run repeatedly; production runs it every 15 minutes.

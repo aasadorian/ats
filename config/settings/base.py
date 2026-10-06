@@ -16,6 +16,7 @@ DEBUG = False
 ALLOWED_HOSTS: list[str] = env.list("DJANGO_ALLOWED_HOSTS", default=[])
 ADMIN_URL: str = env("DJANGO_ADMIN_URL", default="admin/")
 SITE_URL: str = env("SITE_URL", default="http://localhost:8000")
+ODDS_API_KEY: str = env("ODDS_API_KEY", default="")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     "apps.nfl",
     "apps.activity",
     "apps.leagues",
+    "apps.lines",
 ]
 
 MIDDLEWARE = [

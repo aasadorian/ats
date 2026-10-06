@@ -7,8 +7,8 @@ Build order. Each milestone ends with working, tested software committed to `mai
 | 0 | **Skeleton** | `uv` project, Django 5.2 with split settings, custom email `User` model, allauth login (signup closed), Ruff / mypy / djLint / pytest / pre-commit / no-emoji check, GitHub Actions CI with Postgres, health endpoint, setup docs | `runserver` works; every commit is checked | Done (2026-10-06) |
 | 1 | **NFL data** | `Team`, `Season`, `Week`, `Game`; ESPN schedule client; `sync_schedule` command | Real 2026 schedule in the database | Done (2026-10-06) |
 | 2 | **Leagues and members** | `League`, `LeagueSeason`, `LeagueSettings`, `LeagueWeek`, `Membership`, `Invite` and invite signup; `ActivityEvent` and `record_event()`; MFA for commissioners | A commissioner can invite people who sign up | Done (2026-10-06) |
-| 3 | **Lines** | Odds API client, median line, half-point normalization, `lock_spreads`, OFF / void handling, commissioner line review and override | Locked lines every Tuesday at 3 AM PT | Next |
-| 4 | **Picks** | Pick sheet (HTMX), best bet, tiebreaker guess, per-game and weekly locks, visibility rules | Members can play a week | |
+| 3 | **Lines** | Odds API client, median line, half-point normalization, `lock_spreads`, OFF / void handling, commissioner line review and override | Locked lines every Tuesday at 3 AM PT | Done (2026-10-06); live feed untested until an API key is added |
+| 4 | **Picks** | Pick sheet (HTMX), best bet, tiebreaker guess, per-game and weekly locks, visibility rules | Members can play a week | Next |
 | 5 | **Scoring and standings** | `sync_scores`, grading, weekly winners with splits, season standings, best bet standings, postponed games | Full league loop | |
 | 6 | **Launch prep** | Reminders and email provider, commissioner screens, activity log views, Render deployment, backups and monitoring | Soft launch alongside OfficePoolStop | |
 | Later | Settings marked *Later* in [08](08-league-settings.md), history import, PWA, stats | | | |
@@ -50,3 +50,21 @@ Build order. Each milestone ends with working, tested software committed to `mai
   mid-season change rules of [08 §3](08-league-settings.md) (settings are edited in Django admin
   until then), leaving a league, account deletion, notification preferences, security notification
   emails, the optional join link, and client-IP handling behind Render's proxy.
+
+## Milestone 3 notes
+- `uv run python manage.py lock_spreads` (run every 15 minutes in production) locks every league
+  week whose spread lock time has passed and whose picks haven't locked, publishes it, and handles
+  OFF games: posts their line when it appears (feed checked at most every 2 hours) and voids them at
+  the first kickoff of the week. Weeks already past their pick deadline are never locked, so a league
+  created mid-season starts with the current week.
+- Commissioner **Review lines** page (`/leagues/<slug>/lines/`): each game's locked line, the raw feed
+  median, book count (flagged under 3), status, and an override form (half-point lines only, reason
+  required, recorded in the activity log). With `off_line_handling = hold_week`, the week publishes
+  once the commissioner has entered every missing line.
+- **Not yet verified against the live Odds API**: there is no `ODDS_API_KEY` yet. The client is
+  built to the documented v4 format and tested with feed-shaped data; run `lock_spreads` once a key
+  is in `.env` to confirm.
+- **Known limitation:** the `favorite_minus_half` OFF fallback (not our default; ours is `void`)
+  gives -0.5 to the home team, because a game with no spread usually has no moneyline either.
+- Line-locked emails to the commissioner and "week open" emails to members come with notifications
+  in milestone 6; until then the activity log and the review page show this.

@@ -20,10 +20,23 @@ def make_user(email: str | None = None, display_name: str = "") -> User:
     )
 
 
+TEAM_NAMES = {
+    "SEA": ("Seattle", "Seahawks"),
+    "NE": ("New England", "Patriots"),
+    "KC": ("Kansas City", "Chiefs"),
+    "BUF": ("Buffalo", "Bills"),
+    "DAL": ("Dallas", "Cowboys"),
+    "NYG": ("New York", "Giants"),
+    "LAR": ("Los Angeles", "Rams"),
+    "SF": ("San Francisco", "49ers"),
+}
+
+
 def make_team(abbreviation: str) -> Team:
+    location, name = TEAM_NAMES[abbreviation]
     team, _ = Team.objects.get_or_create(
         external_id=abbreviation,
-        defaults={"abbreviation": abbreviation, "location": abbreviation, "name": "X"},
+        defaults={"abbreviation": abbreviation, "location": location, "name": name},
     )
     return team
 

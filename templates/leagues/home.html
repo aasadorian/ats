@@ -5,6 +5,8 @@
   {% if membership.is_commissioner %}
     <p>
       <a href="{% url 'leagues:members' league.slug %}">Manage members</a>
+      |
+      <a href="{% url 'lines:review' league.slug %}">Review lines</a>
     </p>
   {% endif %}
   <h2>Members</h2>
