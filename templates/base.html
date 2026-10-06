@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}ATS Pick'em{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  </head>
+  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <header class="site-header">
+      <a href="{% url 'core:home' %}" class="brand">ATS Pick'em</a>
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'account_logout' %}">
+          {% csrf_token %}
+          <button type="submit">Sign out</button>
+        </form>
+      {% endif %}
+    </header>
+    <main>
+      {% block content %}
+      {% endblock content %}
+    </main>
+  </body>
+</html>

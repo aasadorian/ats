@@ -1,0 +1,68 @@
+[project]
+name = "ats"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "argon2-cffi>=25.1.0",
+    "django~=5.2",
+    "django-allauth[mfa]>=65.19.7",
+    "django-environ>=0.14.0",
+    "django-htmx>=1.29.0",
+    "gunicorn>=26.2.0 ; sys_platform != 'win32'",
+    "psycopg[binary]>=3.3.6",
+    "whitenoise>=6.12.0",
+]
+
+[dependency-groups]
+dev = [
+    "django-stubs[compatible-mypy]>=6.1.2",
+    "djlint>=1.46.4",
+    "factory-boy>=3.3.3",
+    "mypy>=2.4.0",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-django>=4.14.0",
+    "ruff>=0.16.10",
+    "time-machine>=3.5.1",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+extend-exclude = ["**/migrations/*", "docs"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "N", "UP", "B", "SIM", "DJ", "DTZ", "S", "PT", "T20",
+    "ERA", "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S106"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["mypy_django_plugin.main"]
+exclude = ["migrations/"]
+
+[[tool.mypy.overrides]]
+module = ["allauth.*", "environ.*", "factory.*"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+testpaths = ["tests"]
+addopts = "--strict-markers"
+
+[tool.djlint]
+profile = "django"
+indent = 2
+
+# allauth ships no type hints, so its classes are Any to mypy.
+[[tool.mypy.overrides]]
+module = ["apps.accounts.adapters"]
+disallow_subclassing_any = false
