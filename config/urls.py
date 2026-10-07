@@ -9,6 +9,7 @@ urlpatterns = [
     path("accounts/signup/", InviteSignupView.as_view(), name="account_signup"),
     path("accounts/", include("allauth.urls")),
     path("account/", include("apps.accounts.urls")),
+    path("", include("apps.notifications.urls")),
     path("", include("apps.activity.urls")),
     path("", include("apps.leagues.urls")),
     path("", include("apps.lines.urls")),

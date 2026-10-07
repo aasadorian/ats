@@ -1,0 +1,10 @@
+Hi {{ user }},
+
+{{ league_week.week }} is final in {{ league_week.league_season.league.name }}.
+
+Winner{{ results.winners|length|pluralize }}: {% for winner in results.winners %}{{ winner.user }}{% if not forloop.last %}, {% endif %}{% empty %}none{% endfor %}{% if results.is_split %} (split){% endif %}
+Your week: {{ member.points|floatformat:"-1" }} points ({{ member.wins }}-{{ member.losses }}-{{ member.pushes }})
+
+Full results: {{ url }}
+
+Stop these emails: {{ unsubscribe_url }}

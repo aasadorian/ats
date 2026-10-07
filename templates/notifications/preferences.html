@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Email preferences{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'accounts:profile' %}">Account</a>
+  </p>
+  <h1>Email preferences</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% for kind, enabled in options %}
+      <p>
+        <label>
+          <input type="checkbox"
+                 name="{{ kind.value }}"
+                 {% if enabled %}checked{% endif %}>
+          {{ kind.label }}
+        </label>
+      </p>
+    {% endfor %}
+    <p class="muted">Security emails (password, email address and two-factor changes) are always sent.</p>
+    <button type="submit">Save</button>
+  </form>
+{% endblock content %}

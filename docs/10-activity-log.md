@@ -1,5 +1,9 @@
 # 10 — Activity Log
 
+> As built: see [13 §4.7](13-implementation-reference.md). Differences from this design: the
+> redaction of other members' pick events is applied per week (until the pick deadline) rather than
+> per game, and security events are recorded from authentication-library signals.
+
 A single, append-only record of **everything that happens in a league**: lines being fetched, set
 and overridden; picks being made and changed; scores corrected; settings changed; members invited;
 and the account security events from [09](09-user-management.md). It answers "who did what, when,

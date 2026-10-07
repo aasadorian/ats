@@ -128,5 +128,11 @@ Done, not depending on hosting/email/domain decisions:
 - **[13 Implementation Reference](13-implementation-reference.md)** written: exact models, rules,
   algorithms, URLs, jobs, tooling, tests and every bug found.
 
-Remaining for launch: email notifications and preferences (next), then Render deployment, email
-provider, domain, backups, monitoring and client IPs behind the proxy.
+- **Email notifications** (`send_notifications`, every 15 minutes): week open (members, plus a
+  line-review summary for commissioners), reminders at the league's reminder times to members
+  with something missing, weekly results; preferences page; signed one-click unsubscribe;
+  role-change emails; security emails from allauth (`ACCOUNT_EMAIL_NOTIFICATIONS`). Locally they
+  print to the console.
+
+Remaining for launch (needs your decisions): Render deployment and scheduled jobs, email
+provider and sending domain, domain name, backups, monitoring, and client IPs behind the proxy.

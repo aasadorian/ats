@@ -147,8 +147,8 @@ sequenceDiagram
 ## 7. Security events and auditing (part of the [activity log](10-activity-log.md))
 - Recorded in `ActivityEvent` ([10](10-activity-log.md)): logins (success/failure), password changes and resets, email changes,
   MFA enrolment and removal, invites sent/accepted/revoked, role changes, deactivations.
-- The member is emailed for sensitive changes: password changed, email changed, MFA removed,
-  role changed.
+- The member is emailed for sensitive changes: password changed, email changed, MFA added or
+  removed (allauth's `ACCOUNT_EMAIL_NOTIFICATIONS`), and role changed (our own email).
 - Audit records keep user IDs and timestamps; IP addresses are kept for 90 days, then dropped.
 
 ## 8. Admin hardening

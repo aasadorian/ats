@@ -1,0 +1,11 @@
+{% load tz %}{% timezone user.timezone %}Hi {{ user }},
+
+Your {{ league_week.week }} picks in {{ league_week.league_season.league.name }} aren't finished:
+{% if sheet.unpicked_open %}- {{ sheet.unpicked_open }} open game{{ sheet.unpicked_open|pluralize }} without a pick
+{% endif %}{% if missing_best_bet %}- No best bet yet
+{% endif %}{% if missing_guess %}- No tiebreaker guess yet
+{% endif %}
+Everything still open locks {{ league_week.picks_lock_at|date:"D M j, g:i A" }}.
+{{ url }}
+{% endtimezone %}
+Stop these emails: {{ unsubscribe_url }}

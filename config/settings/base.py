@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apps.lines",
     "apps.picks",
     "apps.standings",
+    "apps.notifications",
 ]
 
 MIDDLEWARE = [
@@ -115,6 +116,7 @@ ACCOUNT_LOGIN_BY_CODE_ENABLED = True
 ACCOUNT_PREVENT_ENUMERATION = True
 ACCOUNT_SESSION_REMEMBER = None
 ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
+ACCOUNT_EMAIL_NOTIFICATIONS = True
 ACCOUNT_ADAPTER = "apps.accounts.adapters.InviteOnlyAccountAdapter"
 ACCOUNT_SIGNUP_FORM_CLASS = "apps.accounts.forms.SignupDetailsForm"
 MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]

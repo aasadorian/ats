@@ -1,5 +1,9 @@
 # 08 — League Settings
 
+> As built: every setting below exists on `LeagueSettings`; the commissioner settings page shows
+> only those already implemented (see [13 §4.3](13-implementation-reference.md) and the settings
+> form in `apps/leagues/forms.py`).
+
 The goal is to make as much as practical **configurable by the commissioner**, modeled on
 OfficePoolStop's manager settings (see [07](07-officepoolstop-comparison.md)). Each setting's
 default is the rule our league actually plays, so a new league season works with no setup.

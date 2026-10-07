@@ -1,0 +1,8 @@
+{% load tz %}{% timezone user.timezone %}Hi {{ user }},
+
+Lines for {{ league_week.week }} in {{ league_week.league_season.league.name }} are locked. Make your picks:
+{{ url }}
+
+Games before the Sunday deadline lock at their own kickoff. Everything else locks {{ league_week.picks_lock_at|date:"D M j, g:i A" }}.
+{% endtimezone %}
+Stop these emails: {{ unsubscribe_url }}

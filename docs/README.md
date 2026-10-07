@@ -76,6 +76,8 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-07 | Activity log hides other members' pick details until that week's pick deadline (per week, not per game) | [10](10-activity-log.md), [13](13-implementation-reference.md) |
 | 2026-10-07 | Settings page shows only implemented settings; later-phase settings stay in the model but hidden | [08](08-league-settings.md) |
 | 2026-10-07 | Signed-in device management uses allauth `usersessions` | [09](09-user-management.md) |
+| 2026-10-07 | All scheduled emails go through one idempotent `send_notifications` job with a `Dispatch` log; preferences are opt-out per kind; security emails always sent (allauth notifications) | [13](13-implementation-reference.md) |
+| 2026-10-07 | Reminders more than 6 hours late are skipped rather than sent | [13](13-implementation-reference.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status

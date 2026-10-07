@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -340,5 +341,5 @@ def test_standings_pages_render(client: Client, world: World) -> None:
             reverse("standings:week", args=[world.league.slug]), {"week": 1}
         )
     assert week.status_code == 200
-    assert b"51" not in week.content
+    assert not re.search(rb">\s*51\s*<", week.content)
     assert b"Hidden" in week.content

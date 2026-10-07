@@ -1,0 +1,13 @@
+Lines for {{ league_week.week }} in {{ league_week.league_season.league.name }} are locked.
+{% if flagged %}
+Please review:
+{% for line in flagged %}- {{ line }}
+{% endfor %}{% else %}
+Nothing needs review.
+{% endif %}
+All lines:
+{% for line in lines %}- {{ line }}
+{% endfor %}
+Review or override lines: {{ url }}
+
+Stop these emails: {{ unsubscribe_url }}

@@ -3,3 +3,5 @@
 Reason: {{ reason }}
 
 You can review your picks in the league. If this wasn't expected, contact your commissioner.
+
+Stop these emails: {{ unsubscribe_url }}

@@ -36,6 +36,8 @@ ats/
 │   ├── lines/       Spread, OddsSnapshot; The Odds API client; half-point normalization;
 │   │                weekly lock, OFF lines, commissioner review/override
 │   ├── nfl/         Team, Season, Week, Game; ESPN client; schedule and score sync
+│   ├── notifications/ opt-out preferences, Dispatch log, week-open/reminder/results
+│   │                emails, signed one-click unsubscribe
 │   ├── picks/       Pick, WeeklyEntry; pick rules; pick sheet and grid; commissioner entry
 │   └── standings/   grading, week results, season standings, week status, score corrections
 ├── config/          settings (base, dev, test, prod), urls.py, wsgi.py
@@ -89,6 +91,8 @@ visibility); `views.py` (parse input, call a service/selector, render); `forms.p
   `ACCOUNT_USER_MODEL_USERNAME_FIELD=None`, `ACCOUNT_EMAIL_VERIFICATION="mandatory"`,
   `ACCOUNT_LOGIN_BY_CODE_ENABLED=True` (emailed one-time login codes), `ACCOUNT_PREVENT_ENUMERATION=True`,
   `ACCOUNT_SESSION_REMEMBER=None` (user chooses), `ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE=True`,
+  `ACCOUNT_EMAIL_NOTIFICATIONS=True` (allauth's own security emails: password, email and
+  2FA changes),
   `ACCOUNT_ADAPTER="apps.accounts.adapters.InviteOnlyAccountAdapter"`,
   `ACCOUNT_SIGNUP_FORM_CLASS="apps.accounts.forms.SignupDetailsForm"`,
   `MFA_SUPPORTED_TYPES=["totp","recovery_codes"]`.
@@ -97,7 +101,7 @@ visibility); `views.py` (parse input, call a service/selector, render); `forms.p
   allauth `AccountMiddleware`, allauth `UserSessionsMiddleware`, `HtmxMiddleware`,
   `apps.activity.middleware.EventContextMiddleware`.
 - Installed apps order matters only for migrations: allauth apps, `django_htmx`, then `accounts`,
-  `core`, `nfl`, `activity`, `leagues`, `lines`, `picks`, `standings`.
+  `core`, `nfl`, `activity`, `leagues`, `lines`, `picks`, `standings`, `notifications`.
 
 ---
 
@@ -178,6 +182,13 @@ Generated from the models; `null` means nullable, `->` is a foreign key. All dat
   `object_type`, `object_id`, `before` JSON null, `after` JSON null, `summary` (255),
   `source` (`web`, `job:<name>`, `command:<name>`, `shell`), `request_id` (32 hex), `ip_address`
   null (security events only). Indexes per [10](10-activity-log.md). Append-only (section 6.2).
+
+### notifications
+- **NotificationPreference**: `user` ->, `kind` (`week_open|reminders|weekly_results|picks_entered|commissioner`), `enabled`; unique (`user`, `kind`). Opt-out model: no row
+  means enabled. Security emails are not a kind and are always sent.
+- **Dispatch**: `kind`, `league_week` ->, `key` (blank, or the reminder slot ISO timestamp),
+  `sent_at`, `recipients`; unique (`kind`, `league_week`, `key`). Claimed *before* sending so
+  overlapping job runs never send a batch twice.
 
 ---
 
@@ -362,6 +373,31 @@ Defaults give Tue 03:00 PT and Sun 10:00 PT (2026-09-13 week: 10:00Z and 17:00Z;
   then scrubs the old email and name from the activity log. Picks are kept. The form requires the
   password only if the account has one, plus typing `DELETE`.
 
+### 4.9 Notifications (`apps/notifications`)
+- `send(user, kind, subject, template, context)`: skips inactive users and opted-out kinds;
+  renders a plain-text template with `user`, `site_url` and `unsubscribe_url`; adds
+  `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` headers.
+- Unsubscribe token: `django.core.signing.dumps({"u": user_id, "k": kind},
+  salt="notifications.unsubscribe")`. The unsubscribe view is `csrf_exempt` (the token
+  authenticates; mail clients POST one-click unsubscribes per RFC 8058): GET shows a confirm
+  button, POST disables the kind; bad tokens return 404.
+- `send_notifications(now)` (job every 15 minutes):
+  1. **Week open**, for weeks published or in progress whose pick deadline is ahead: claim
+     `Dispatch(week_open)`, email active members (`week_open`) a link to the pick sheet, and
+     email commissioners (`commissioner`) every locked line, flagging OFF/void lines and lines
+     from fewer than 3 books.
+  2. **Reminders**, per slot from `reminder_slots(league_week)`: each configured
+     `{weekday, time}` in the league timezone after `spreads_lock_at` and at or before
+     `picks_lock_at`. Sent when `slot <= now < slot + 6 h` (stale slots are skipped, for
+     example after an outage), claimed per slot, only to members with an open unpicked game,
+     no best bet, or no tiebreaker guess.
+  3. **Weekly results**, for final weeks whose window ended within 30 days: claim, then email
+     each active participant the winners (split noted) and their points and record.
+- Other emails: invite (`email/invite.txt`), commissioner pick entry (`picks_entered` kind),
+  role change (always sent, from `leagues.services.change_role` on commit).
+- Templates: `templates/email/{invite,week_open,lines_locked,reminder,weekly_results,pick_entered,role_changed}.txt`.
+- Pages: `/account/notifications/` (a checkbox per kind) and `/unsubscribe/<token>/`.
+
 ---
 
 ## 5. URL map
@@ -373,6 +409,8 @@ Defaults give Tue 03:00 PT and Sun 10:00 PT (2026-09-13 week: 10:00Z and 17:00Z;
 | `/accounts/...` | allauth (login, logout, signup, password reset, email, `2fa/...`, sessions) | mixed |
 | `/accounts/signup/` | `account_signup` (InviteSignupView) | invite in session |
 | `/account/profile/`, `/account/delete/` | `accounts:profile`, `accounts:delete` | login |
+| `/account/notifications/` | `notifications:preferences` | login |
+| `/unsubscribe/<token>/` | `notifications:unsubscribe` | public (signed token) |
 | `/invites/<token>/` | `leagues:invite` | public |
 | `/leagues/<slug>/` | `leagues:home` | member |
 | `/leagues/<slug>/leave/` | `leagues:leave` | member |
@@ -401,6 +439,7 @@ window hasn't ended.
 | `sync_schedule [--season Y] [--week N ...]` | daily | ESPN schedule sync, then league weeks and tiebreaker games refresh |
 | `lock_spreads` | every 15 min | weekly line locks plus OFF-line posting/voiding |
 | `sync_scores` | every 5 min | live-week score sync (no requests when idle), week statuses, weekly winners |
+| `send_notifications` | every 15 min | week-open, reminder and weekly-results emails, each sent once |
 | `prune_activity_ips` | daily | null IPs older than 90 days |
 | `create_league --name --slug --season --commissioner-email` | manual | bootstrap a league |
 
@@ -472,7 +511,8 @@ with `CREATEDB`, needed for the test database, and the database from `DATABASE_U
 - Recorded ESPN JSON fixtures (trimmed real responses) in `tests/fixtures/espn/`.
 - Time is controlled by passing `now=` to services and by `time_machine.travel` in view tests.
 - Coverage by file: accounts, activity, lock schedule, leagues services and views, lines
-  normalization/services/views, NFL feed and sync, picks, standings, commissioner tools.
+  normalization/services/views, NFL feed and sync, picks, standings, commissioner tools,
+  notifications.
   The append-only test is skipped on SQLite and runs in CI.
 
 ---
@@ -501,12 +541,15 @@ with `CREATEDB`, needed for the test database, and the database from `DATABASE_U
 | 18 | ESPN scheduled games report score `"0"` | Feed quirk | Store scores only when in progress or final |
 | 19 | Windows environment | PostgreSQL install needs an elevated prompt the agent can't show; the `python` on PATH is a Microsoft Store stub; bash heredocs with apostrophes broke | User installs PostgreSQL; use `uv` for Python; write files with the editor tool rather than shell heredocs |
 | 20 | CI status checking | `gh` CLI not installed | Poll the public GitHub Actions API for the latest run |
+| 21 | Flaky test: `b"51" not in page` failed occasionally | The random CSRF token rendered into every page (`hx-headers`) sometimes contains "51" | Never assert absence of a short string against a whole page; match the specific cell (regex `>\s*51\s*<`) or a distinctive phrase, and rerun the suite several times after adding such checks |
+| 22 | Risk of duplicate emails | A job running every 15 minutes could resend a batch | Record a `Dispatch` row with a unique key before sending |
+| 23 | Shell heredocs failed to parse (twice) | Apostrophes and backticks in inline scripts passed through the agent's shell | Write scripts and files with the editor tool, then run them |
 
 ---
 
 ## 11. Not built yet
-Tracked in [12 Roadmap](12-roadmap.md) and [06 Open Questions](06-open-questions.md): email
-notifications (reminders, week open, weekly results, security alerts) and preferences; Render
-deployment, backups, monitoring and client-IP handling behind the proxy; later-phase settings
-(variable/closing lines, auto-pick, bonuses, drop worst week, commissioner-selected tiebreaker
-game, game slates, grace period); history import; PWA.
+Tracked in [12 Roadmap](12-roadmap.md) and [06 Open Questions](06-open-questions.md): Render
+deployment and scheduled jobs, production email provider and sending domain (Django and allauth
+send through `EMAIL_BACKEND`), domain name, backups, monitoring and client-IP handling behind the
+proxy; later-phase settings (variable/closing lines, auto-pick, bonuses, drop worst week,
+commissioner-selected tiebreaker game, game slates, grace period); history import; PWA.

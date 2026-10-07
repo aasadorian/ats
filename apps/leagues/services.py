@@ -294,6 +294,7 @@ def change_role(membership: Membership, role: Role, *, actor: User) -> None:
         before={"role": before},
         after={"role": role.value},
     )
+    transaction.on_commit(lambda: send_role_changed_email(membership, actor))
 
 
 @transaction.atomic
@@ -342,6 +343,17 @@ def _ensure_another_commissioner(membership: Membership) -> None:
     )
     if not others.exists():
         raise LastCommissionerError("A league must keep at least one commissioner.")
+
+
+def send_role_changed_email(membership: Membership, actor: User) -> None:
+    send_mail(
+        subject=f"Your role in {membership.league} changed",
+        message=render_to_string(
+            "email/role_changed.txt", {"membership": membership, "actor": actor}
+        ),
+        from_email=None,
+        recipient_list=[membership.user.email],
+    )
 
 
 def send_invite_email(invite: Invite, token: str) -> None:

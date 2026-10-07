@@ -1,5 +1,9 @@
 # 04 — Data Model
 
+> This is the design-level model. The exact as-built fields, constraints and the models added
+> during implementation (`OddsSnapshot`, `NotificationPreference`, `Dispatch`, `Game.score_overridden`,
+> and others) are in [13 Implementation Reference §3](13-implementation-reference.md).
+
 ## 1. Entity diagram
 
 ```mermaid
