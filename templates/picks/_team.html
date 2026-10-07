@@ -1,0 +1,25 @@
+{% with chosen=row.pick.team_id %}
+  {% if row.is_open %}
+    <form method="post"
+          action="{% url 'picks:pick' league.slug %}"
+          hx-post="{% url 'picks:pick' league.slug %}"
+          hx-target="#sheet"
+          hx-swap="outerHTML">
+      {% csrf_token %}
+      <input type="hidden" name="week" value="{{ sheet.league_week.week.number }}">
+      <input type="hidden" name="game" value="{{ row.game.pk }}">
+      <input type="hidden" name="team" value="{{ team.pk }}">
+      <button type="submit"
+              class="team{% if chosen == team.pk %} selected{% endif %}"
+              aria-pressed="{% if chosen == team.pk %}true{% else %}false{% endif %}">
+        <span class="abbr">{{ team.abbreviation }}</span>
+        <span class="line">{{ text }}</span>
+      </button>
+    </form>
+  {% else %}
+    <span class="team{% if chosen == team.pk %} selected{% endif %}">
+      <span class="abbr">{{ team.abbreviation }}</span>
+      <span class="line">{{ text }}</span>
+    </span>
+  {% endif %}
+{% endwith %}

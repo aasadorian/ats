@@ -8,8 +8,8 @@ Build order. Each milestone ends with working, tested software committed to `mai
 | 1 | **NFL data** | `Team`, `Season`, `Week`, `Game`; ESPN schedule client; `sync_schedule` command | Real 2026 schedule in the database | Done (2026-10-06) |
 | 2 | **Leagues and members** | `League`, `LeagueSeason`, `LeagueSettings`, `LeagueWeek`, `Membership`, `Invite` and invite signup; `ActivityEvent` and `record_event()`; MFA for commissioners | A commissioner can invite people who sign up | Done (2026-10-06) |
 | 3 | **Lines** | Odds API client, median line, half-point normalization, `lock_spreads`, OFF / void handling, commissioner line review and override | Locked lines every Tuesday at 3 AM PT | Done (2026-10-06); live feed untested until an API key is added |
-| 4 | **Picks** | Pick sheet (HTMX), best bet, tiebreaker guess, per-game and weekly locks, visibility rules | Members can play a week | Next |
-| 5 | **Scoring and standings** | `sync_scores`, grading, weekly winners with splits, season standings, best bet standings, postponed games | Full league loop | |
+| 4 | **Picks** | Pick sheet (HTMX), best bet, tiebreaker guess, per-game and weekly locks, visibility rules | Members can play a week | Done (2026-10-07) |
+| 5 | **Scoring and standings** | `sync_scores`, grading, weekly winners with splits, season standings, best bet standings, postponed games | Full league loop | Next |
 | 6 | **Launch prep** | Reminders and email provider, commissioner screens, activity log views, Render deployment, backups and monitoring | Soft launch alongside OfficePoolStop | |
 | Later | Settings marked *Later* in [08](08-league-settings.md), history import, PWA, stats | | | |
 
@@ -68,3 +68,21 @@ Build order. Each milestone ends with working, tested software committed to `mai
   gives -0.5 to the home team, because a game with no spread usually has no moneyline either.
 - Line-locked emails to the commissioner and "week open" emails to members come with notifications
   in milestone 6; until then the activity log and the review page show this.
+
+## Milestone 4 notes
+- **Pick sheet** (`/leagues/<slug>/picks/`): every game with both teams' lines; tap a team to pick,
+  toggle best bet, clear a pick, and enter the tiebreaker guess. HTMX swaps the sheet in place; every
+  action also works as a plain form post without JavaScript. Times show in the member's timezone.
+- **Rules enforced in `apps/picks/services.py`:** week must be published; game must have a posted
+  line; nothing changes after a game's lock (`min(kickoff, Sunday 10 AM PT)`, with the postponement
+  rule); best bets limited per settings. With one best bet per week, starring another game
+  **moves** the best bet, unless the current one is already locked. Clearing a pick clears its best
+  bet. Attempts after lock are recorded (`pick.rejected_locked`).
+- **Everyone's picks** grid (`/leagues/<slug>/picks/grid/`): picks are revealed per game as it locks
+  (or all at the weekly deadline, per `pick_visibility`). Before that, a cell shows only *whether*
+  the member has picked. Hidden picks are never sent to the browser: the selector drops them
+  before the template sees them. Tiebreaker guesses are revealed at the weekly deadline.
+- HTMX 2.0.4 is served from `static/vendor/` rather than a CDN.
+- **Deferred to milestone 6:** commissioner entering picks for a member (the services already accept
+  an `actor` and log it as a commissioner action), and the activity feed views. Pick events in the
+  activity log include the team, so those views must apply the same visibility rule.

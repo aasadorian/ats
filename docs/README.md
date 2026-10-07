@@ -63,8 +63,11 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-06 | League settings are edited in Django admin until the commissioner settings page in milestone 6 | [12](12-roadmap.md) |
 | 2026-10-06 | One `lock_spreads` job (every 15 min) handles weekly locks and OFF lines; OFF-line feed checks throttled to every 2 hours to stay within the Odds API free tier (2 credits per request) | [03](03-architecture-and-hosting.md), [05](05-data-sources.md) |
 | 2026-10-06 | Raw Odds API responses are stored (`OddsSnapshot`) as evidence for every locked line | [05](05-data-sources.md) |
+| 2026-10-07 | With one best bet per week, choosing a new best bet moves it (unless the current one is locked); with a higher limit, members must remove one first | [12](12-roadmap.md) |
+| 2026-10-07 | Before a game is revealed, the picks grid shows whether each member has picked it, but never which team | [12](12-roadmap.md), [10](10-activity-log.md) |
+| 2026-10-07 | HTMX served from the app's static files, not a CDN | [12](12-roadmap.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status
 
-Milestones 0-3 complete (skeleton, NFL data, leagues and members, lines); see [12 Roadmap](12-roadmap.md).
+Milestones 0-4 complete (skeleton, NFL data, leagues and members, lines, picks); see [12 Roadmap](12-roadmap.md).

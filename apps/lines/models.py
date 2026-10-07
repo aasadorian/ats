@@ -80,3 +80,9 @@ def format_line(line: Decimal | None) -> str:
     if line == 0:
         return "PK"
     return f"{line:+.1f}"
+
+
+def team_line(home_line: Decimal | None, *, is_home: bool) -> str:
+    if home_line is None:
+        return format_line(None)
+    return format_line(home_line if is_home else -home_line)

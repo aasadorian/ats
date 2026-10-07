@@ -1,0 +1,14 @@
+<form method="get"
+      action="{% url url_name league.slug %}"
+      class="week-picker">
+  <label for="week">Week</label>
+  <select id="week" name="week" onchange="this.form.submit()">
+    {% for league_week in weeks %}
+      <option value="{{ league_week.week.number }}"
+              {% if league_week.pk == selected.pk %}selected{% endif %}>Week {{ league_week.week.number }}</option>
+    {% endfor %}
+  </select>
+  <noscript>
+    <button type="submit">Show</button>
+  </noscript>
+</form>

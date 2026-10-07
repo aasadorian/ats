@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}ATS Pick'em{% endblock title %}</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script src="{% static 'vendor/htmx-2.0.4.min.js' %}" defer></script>
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <header class="site-header">

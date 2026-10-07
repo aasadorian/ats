@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Picks - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+    |
+    <a href="{% url 'picks:grid' league.slug %}?week={{ sheet.league_week.week.number }}">Everyone's picks</a>
+  </p>
+  {% include "picks/_week_nav.html" with url_name="picks:sheet" selected=sheet.league_week %}
+  {% include "picks/_sheet.html" %}
+{% endblock content %}

@@ -1,0 +1,109 @@
+{% load tz %}
+<div id="sheet">
+  {% timezone user.timezone %}
+    {% with lw=sheet.league_week %}
+      <h1>Week {{ lw.week.number }} picks</h1>
+      {% if error %}<p class="message error" role="alert">{{ error }}</p>{% endif %}
+      {% if not sheet.week_open %}
+        <p>Lines for this week lock {{ lw.spreads_lock_at|date:"D M j, g:i A" }}. Picks open then.</p>
+      {% else %}
+        <p class="summary">
+          {{ sheet.picked }} of {{ sheet.pickable }} picked.
+          {% if sheet.best_bet_limit %}Best bets: {{ sheet.best_bets }} of {{ sheet.best_bet_limit }}.{% endif %}
+          All remaining games lock {{ lw.picks_lock_at|date:"D M j, g:i A" }}.
+        </p>
+        {% if sheet.unpicked_open %}
+          <p class="message warning">You have {{ sheet.unpicked_open }} open game{{ sheet.unpicked_open|pluralize }} without a pick.</p>
+        {% endif %}
+      {% endif %}
+      <ol class="games">
+        {% for row in sheet.rows %}
+          <li class="game state-{{ row.state }}">
+            <div class="game-meta">
+              <span>{{ row.game.kickoff_at|date:"D M j, g:i A" }}</span>
+              {% if row.state == "open" %}
+                <span>Locks {{ row.lock_at|date:"D g:i A" }}</span>
+              {% elif row.state == "locked" %}
+                <span>Locked</span>
+              {% elif row.state == "off" %}
+                <span>No line yet</span>
+              {% elif row.state == "void" %}
+                <span>Void this week</span>
+              {% endif %}
+            </div>
+            <div class="teams">
+              {% include "picks/_team.html" with team=row.game.away_team text=row.away_text %}
+              {% include "picks/_team.html" with team=row.game.home_team text=row.home_text %}
+            </div>
+            {% if row.pick and sheet.best_bet_limit %}
+              <div class="pick-actions">
+                {% if row.is_open %}
+                  <form method="post"
+                        action="{% url 'picks:best_bet' league.slug %}"
+                        hx-post="{% url 'picks:best_bet' league.slug %}"
+                        hx-target="#sheet"
+                        hx-swap="outerHTML">
+                    {% csrf_token %}
+                    <input type="hidden" name="week" value="{{ lw.week.number }}">
+                    <input type="hidden" name="game" value="{{ row.game.pk }}">
+                    <input type="hidden"
+                           name="on"
+                           value="{% if row.pick.is_best_bet %}0{% else %}1{% endif %}">
+                    <button type="submit"
+                            class="best-bet{% if row.pick.is_best_bet %} selected{% endif %}"
+                            aria-pressed="{% if row.pick.is_best_bet %}true{% else %}false{% endif %}">
+                      {% if row.pick.is_best_bet %}
+                        Best bet
+                      {% else %}
+                        Make best bet
+                      {% endif %}
+                    </button>
+                  </form>
+                  <form method="post"
+                        action="{% url 'picks:clear' league.slug %}"
+                        hx-post="{% url 'picks:clear' league.slug %}"
+                        hx-target="#sheet"
+                        hx-swap="outerHTML">
+                    {% csrf_token %}
+                    <input type="hidden" name="week" value="{{ lw.week.number }}">
+                    <input type="hidden" name="game" value="{{ row.game.pk }}">
+                    <button type="submit" class="link">Clear</button>
+                  </form>
+                {% elif row.pick.is_best_bet %}
+                  <span class="best-bet selected">Best bet</span>
+                {% endif %}
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+      {% if sheet.week_open %}
+        <section class="tiebreaker">
+          <h2>Tiebreaker</h2>
+          {% if lw.tiebreaker_game %}
+            <p>Total points in {{ lw.tiebreaker_game }} ({{ lw.tiebreaker_game.kickoff_at|date:"D g:i A" }})</p>
+          {% endif %}
+          {% if sheet.tiebreaker_locked %}
+            <p>Your guess: {{ sheet.entry.tiebreaker_guess|default:"none" }}</p>
+          {% else %}
+            <form method="post"
+                  action="{% url 'picks:tiebreaker' league.slug %}"
+                  hx-post="{% url 'picks:tiebreaker' league.slug %}"
+                  hx-target="#sheet"
+                  hx-swap="outerHTML">
+              {% csrf_token %}
+              <input type="hidden" name="week" value="{{ lw.week.number }}">
+              <label for="guess">Your guess</label>
+              <input id="guess"
+                     name="guess"
+                     inputmode="numeric"
+                     size="4"
+                     value="{{ sheet.entry.tiebreaker_guess|default_if_none:'' }}">
+              <button type="submit">Save</button>
+            </form>
+          {% endif %}
+        </section>
+      {% endif %}
+    {% endwith %}
+  {% endtimezone %}
+</div>

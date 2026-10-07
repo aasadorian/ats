@@ -2,6 +2,11 @@
 {% block title %}{{ league.name }}{% endblock title %}
 {% block content %}
   <h1>{{ league.name }}</h1>
+  <p>
+    <a href="{% url 'picks:sheet' league.slug %}">My picks</a>
+    |
+    <a href="{% url 'picks:grid' league.slug %}">Everyone's picks</a>
+  </p>
   {% if membership.is_commissioner %}
     <p>
       <a href="{% url 'leagues:members' league.slug %}">Manage members</a>

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Everyone's picks - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+    |
+    <a href="{% url 'picks:sheet' league.slug %}?week={{ grid.league_week.week.number }}">My picks</a>
+  </p>
+  {% include "picks/_week_nav.html" with url_name="picks:grid" selected=grid.league_week %}
+  <h1>Week {{ grid.league_week.week.number }}: everyone's picks</h1>
+  <p>Picks appear as each game locks.</p>
+  <div class="table-wrap">
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Member</th>
+          {% for column in grid.columns %}
+            <th>
+              {{ column.game.away_team }} @ {{ column.game.home_team }}
+              <br>
+              <small>{{ column.game.home_team }} {{ column.home_text }}</small>
+            </th>
+          {% endfor %}
+          <th>Tiebreaker</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in grid.rows %}
+          <tr>
+            <th scope="row">{{ row.membership.user }}</th>
+            {% for cell in row.cells %}
+              {% if cell.pick %}
+                <td class="{% if cell.pick.is_best_bet %}best-bet-cell{% endif %}">
+                  {{ cell.pick.team.abbreviation }}
+                  {% if cell.pick.is_best_bet %}<small>BB</small>{% endif %}
+                </td>
+              {% elif cell.revealed %}
+                <td class="muted">-</td>
+              {% elif cell.has_pick %}
+                <td class="muted">Picked</td>
+              {% else %}
+                <td class="muted">Not yet</td>
+              {% endif %}
+            {% endfor %}
+            <td>
+              {% if row.tiebreaker_revealed %}
+                {{ row.tiebreaker_guess|default_if_none:"-" }}
+              {% else %}
+                <span class="muted">Hidden</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock content %}
