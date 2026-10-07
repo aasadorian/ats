@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Settings - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+  </p>
+  <h1>League settings</h1>
+  <p class="muted">
+    Lock-time changes apply to weeks that haven't opened yet. Line changes apply to lines not yet
+    locked. Scoring changes after the first week opens recalculate the whole season.
+  </p>
+  <form method="post" class="settings-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for title, fields in form.sections %}
+      <fieldset>
+        <legend>{{ title }}</legend>
+        {% for field in fields %}
+          <p>
+            {{ field.label_tag }} {{ field }}
+            {{ field.errors }}
+          </p>
+        {% endfor %}
+      </fieldset>
+    {% endfor %}
+    <p>
+      {{ form.apply_to_season }} {{ form.apply_to_season.label_tag }}
+      <br>
+      <small class="muted">{{ form.apply_to_season.help_text }}</small>
+    </p>
+    <button type="submit">Save settings</button>
+  </form>
+{% endblock content %}

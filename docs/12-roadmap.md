@@ -10,7 +10,7 @@ Build order. Each milestone ends with working, tested software committed to `mai
 | 3 | **Lines** | Odds API client, median line, half-point normalization, `lock_spreads`, OFF / void handling, commissioner line review and override | Locked lines every Tuesday at 3 AM PT | Done (2026-10-06); live feed untested until an API key is added |
 | 4 | **Picks** | Pick sheet (HTMX), best bet, tiebreaker guess, per-game and weekly locks, visibility rules | Members can play a week | Done (2026-10-07) |
 | 5 | **Scoring and standings** | `sync_scores`, grading, weekly winners with splits, season standings, best bet standings, postponed games | Full league loop | Done (2026-10-07) |
-| 6 | **Launch prep** | Reminders and email provider, commissioner screens, activity log views, Render deployment, backups and monitoring | Soft launch alongside OfficePoolStop | Next |
+| 6 | **Launch prep** | Reminders and email provider, commissioner screens, activity log views, Render deployment, backups and monitoring | Soft launch alongside OfficePoolStop | In progress |
 | Later | Settings marked *Later* in [08](08-league-settings.md), history import, PWA, stats | | | |
 
 ## Milestone 0 notes
@@ -109,3 +109,24 @@ Build order. Each milestone ends with working, tested software committed to `mai
 - **Deferred to milestone 6:** commissioner score corrections. These need a "score overridden" flag
   so the next feed sync doesn't overwrite them. Also deferred: dropping the worst week and the
   scoring extras (later-phase settings).
+
+## Milestone 6 progress (2026-10-07)
+Done, not depending on hosting/email/domain decisions:
+- **Commissioner settings page** (`/leagues/<slug>/settings/`) showing only implemented settings, with
+  the mid-season rules from [08 §3](08-league-settings.md): scoring changes after week 1 opens need
+  an explicit "apply to the whole season" confirmation; lock-time changes recompute every week
+  that hasn't opened.
+- **Score corrections** (`/leagues/<slug>/scores/`): set a final score with a reason; the game is
+  flagged so feed syncs leave it alone until "Use feed" is clicked.
+- **Commissioner pick entry** (`/leagues/<slug>/members/<id>/picks/`): reason required, normal lock
+  rules apply, logged as a commissioner action, member emailed.
+- **Activity pages:** league feed, my activity, and the commissioner log with filters and CSV
+  export. Other members' pick events are redacted until that week's pick deadline.
+- **Account actions:** profile (display name, timezone, links to email/password/2FA/signed-in
+  devices via allauth `usersessions`), leave a league, delete account (anonymized; history kept;
+  email and name scrubbed from the activity log), daily `prune_activity_ips` job.
+- **[13 Implementation Reference](13-implementation-reference.md)** written: exact models, rules,
+  algorithms, URLs, jobs, tooling, tests and every bug found.
+
+Remaining for launch: email notifications and preferences (next), then Render deployment, email
+provider, domain, backups, monitoring and client IPs behind the proxy.

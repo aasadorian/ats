@@ -8,6 +8,8 @@ urlpatterns = [
     path("invites/<str:token>/", views.invite, name="invite"),
     path("leagues/<slug:slug>/", views.league_home, name="home"),
     path("leagues/<slug:slug>/members/", views.members, name="members"),
+    path("leagues/<slug:slug>/settings/", views.league_settings, name="settings"),
+    path("leagues/<slug:slug>/leave/", views.leave, name="leave"),
     path(
         "leagues/<slug:slug>/invites/<int:pk>/resend/",
         views.invite_resend,

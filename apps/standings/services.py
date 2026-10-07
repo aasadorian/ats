@@ -3,9 +3,11 @@ from datetime import datetime
 from django.db import transaction
 from django.db.models import Min
 
+from apps.accounts.models import User
+from apps.activity.models import ActorType
 from apps.activity.services import record_event
-from apps.leagues.models import LeagueWeek, LeagueWeekStatus
-from apps.nfl.models import GameStatus
+from apps.leagues.models import League, LeagueWeek, LeagueWeekStatus
+from apps.nfl.models import Game, GameStatus
 from apps.standings.selectors import week_results
 
 DONE_STATUSES = (GameStatus.FINAL, GameStatus.CANCELLED)
@@ -74,4 +76,56 @@ def _finalize(league_week: LeagueWeek) -> None:
             "points": str(top),
             "tiebreaker_actual": results.tiebreaker_actual,
         },
+    )
+
+
+@transaction.atomic
+def correct_score(
+    game: Game,
+    *,
+    home_score: int,
+    away_score: int,
+    league: League,
+    actor: User,
+    reason: str,
+) -> None:
+    before = {
+        "home_score": game.home_score,
+        "away_score": game.away_score,
+        "status": game.status,
+    }
+    game.home_score = home_score
+    game.away_score = away_score
+    game.status = GameStatus.FINAL
+    game.score_overridden = True
+    game.save(update_fields=["home_score", "away_score", "status", "score_overridden"])
+    record_event(
+        event_type="game.score_corrected",
+        summary=(
+            f"{actor} set {game.away_team} {away_score}, "
+            f"{game.home_team} {home_score}: {reason}"
+        ),
+        actor=actor,
+        actor_type=ActorType.COMMISSIONER,
+        league=league,
+        obj=game,
+        before=before,
+        after={"home_score": home_score, "away_score": away_score, "reason": reason},
+    )
+
+
+@transaction.atomic
+def restore_feed_score(game: Game, *, league: League, actor: User) -> None:
+    if not game.score_overridden:
+        return
+    game.score_overridden = False
+    game.save(update_fields=["score_overridden"])
+    record_event(
+        event_type="game.score_corrected",
+        summary=f"{actor} returned {game} to the feed score",
+        actor=actor,
+        actor_type=ActorType.COMMISSIONER,
+        league=league,
+        obj=game,
+        after={"score_overridden": False},
     )

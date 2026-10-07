@@ -19,6 +19,7 @@ from apps.leagues.models import (
     LeagueSeason,
     LeagueSettings,
     LeagueWeek,
+    LeagueWeekStatus,
     Membership,
     Role,
     TiebreakerGame,
@@ -354,4 +355,124 @@ def send_invite_email(invite: Invite, token: str) -> None:
         message=render_to_string("email/invite.txt", context),
         from_email=None,
         recipient_list=[invite.email],
+    )
+
+
+# Settings
+
+SCHEDULE_FIELDS = (
+    "spread_lock_weekday",
+    "spread_lock_time",
+    "picks_lock_weekday",
+    "picks_lock_time",
+)
+SCORING_FIELDS = (
+    "pick_type",
+    "points_per_win",
+    "best_bets_per_week",
+    "best_bet_bonus",
+    "push_scoring",
+    "weekly_prize_metric",
+)
+
+
+class RetroactiveChangeError(LeagueError):
+    pass
+
+
+@transaction.atomic
+def update_settings(
+    league_settings: LeagueSettings,
+    changes: dict[str, object],
+    *,
+    actor: User,
+    apply_to_season: bool = False,
+) -> list[str]:
+    """Apply settings changes under the mid-season rules in docs/08 section 3.
+
+    Scoring changes after the first week opens recalculate the whole season, so
+    they need explicit confirmation. Lock-time changes recompute every week that
+    hasn't opened yet.
+    """
+    changed = [
+        name
+        for name, value in changes.items()
+        if getattr(league_settings, name) != value
+    ]
+    if not changed:
+        return []
+    league_season = league_settings.league_season
+    season_started = league_season.weeks.exclude(
+        status=LeagueWeekStatus.SCHEDULED
+    ).exists()
+    scoring = [name for name in changed if name in SCORING_FIELDS]
+    if scoring and season_started and not apply_to_season:
+        raise RetroactiveChangeError(
+            "Scoring settings changed after the season started: "
+            + ", ".join(scoring)
+            + ". Confirm that the change applies to the whole season."
+        )
+
+    before = {name: _jsonable(getattr(league_settings, name)) for name in changed}
+    for name in changed:
+        setattr(league_settings, name, changes[name])
+    league_settings.full_clean()
+    league_settings.save()
+
+    if any(name in SCHEDULE_FIELDS for name in changed):
+        _recompute_unpublished_weeks(league_season)
+    record_event(
+        event_type="settings.changed",
+        summary=f"{actor} changed {', '.join(changed)}"
+        + (" (applied to the whole season)" if scoring and season_started else ""),
+        actor=actor,
+        actor_type=ActorType.COMMISSIONER,
+        league=league_season.league,
+        obj=league_settings,
+        before=before,
+        after={name: _jsonable(getattr(league_settings, name)) for name in changed},
+    )
+    return changed
+
+
+def _recompute_unpublished_weeks(league_season: LeagueSeason) -> None:
+    league_settings = league_season.settings
+    for league_week in league_season.weeks.filter(
+        status=LeagueWeekStatus.SCHEDULED
+    ).select_related("week"):
+        spreads_at, picks_at = lock_times(
+            league_week.week.sunday,
+            spread_weekday=league_settings.spread_lock_weekday,
+            spread_time=league_settings.spread_lock_time,
+            picks_weekday=league_settings.picks_lock_weekday,
+            picks_time=league_settings.picks_lock_time,
+            timezone_name=league_season.league.timezone,
+        )
+        league_week.spreads_lock_at = spreads_at
+        league_week.picks_lock_at = picks_at
+        league_week.save(update_fields=["spreads_lock_at", "picks_lock_at"])
+
+
+def _jsonable(value: object) -> object:
+    if value is None or isinstance(value, str | int | float | bool | list | dict):
+        return value
+    return str(value)
+
+
+@transaction.atomic
+def leave_league(membership: Membership) -> None:
+    if not membership.is_active:
+        return
+    if membership.role == Role.COMMISSIONER:
+        _ensure_another_commissioner(membership)
+    membership.is_active = False
+    membership.deactivated_at = timezone.now()
+    membership.save(update_fields=["is_active", "deactivated_at"])
+    record_event(
+        event_type="member.left",
+        summary=f"{membership.user} left the league",
+        actor=membership.user,
+        league=membership.league,
+        subject_user=membership.user,
+        obj=membership,
     )

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Scores - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+  </p>
+  {% include "picks/_week_nav.html" with url_name="standings:scores" %}
+  <h1>Week {{ selected.week.number }} scores</h1>
+  <p class="muted">Corrected scores are final and stop following the feed until you return them to it.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Game</th>
+          <th>Status</th>
+          <th>Score</th>
+          <th>Correct</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for game in games %}
+          <tr>
+            <td>{{ game.away_team }} @ {{ game.home_team }}</td>
+            <td>
+              {{ game.get_status_display }}
+              {% if game.score_overridden %}(corrected){% endif %}
+            </td>
+            <td>{% if game.home_score is not None %}{{ game.away_score }}-{{ game.home_score }}{% endif %}</td>
+            <td>
+              <form method="post"
+                    action="{% url 'standings:correct' league.slug game.pk %}"
+                    class="inline-form">
+                {% csrf_token %}
+                <input name="away_score"
+                       inputmode="numeric"
+                       size="3"
+                       aria-label="{{ game.away_team }} score"
+                       placeholder="{{ game.away_team }}">
+                <input name="home_score"
+                       inputmode="numeric"
+                       size="3"
+                       aria-label="{{ game.home_team }} score"
+                       placeholder="{{ game.home_team }}">
+                <input name="reason" size="12" aria-label="Reason" placeholder="Reason">
+                <button type="submit">Save</button>
+                {% if game.score_overridden %}
+                  <button type="submit" name="restore" value="1">Use feed</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock content %}

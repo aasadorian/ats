@@ -1,6 +1,11 @@
+import json
+import re
+from collections.abc import Iterator
+from contextlib import contextmanager
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from django.db import models
+from django.db import connection, models, transaction
 
 from apps.activity.context import current_context
 from apps.activity.models import ActivityEvent, ActorType, Category
@@ -8,6 +13,8 @@ from apps.activity.models import ActivityEvent, ActorType, Category
 if TYPE_CHECKING:
     from apps.accounts.models import User
     from apps.leagues.models import League, LeagueWeek
+
+IP_RETENTION = timedelta(days=90)
 
 _CATEGORY_BY_PREFIX = {
     "line": Category.LINES,
@@ -75,3 +82,48 @@ def record_event(
         request_id=context.request_id,
         ip_address=context.ip_address if category == Category.SECURITY else None,
     )
+
+
+@contextmanager
+def maintenance() -> Iterator[None]:
+    """Allow the privacy jobs to edit events despite the append-only trigger."""
+    with transaction.atomic():
+        if connection.vendor == "postgresql":
+            with connection.cursor() as cursor:
+                cursor.execute("SET LOCAL ats.activity_maintenance = 'on'")
+        yield
+
+
+def scrub_identity(replacements: dict[str, str]) -> int:
+    """Replace personal identifiers in summaries and snapshots; returns rows changed."""
+    patterns = [
+        (re.compile(rf"(?<!\w){re.escape(old)}(?!\w)", re.IGNORECASE), new)
+        for old, new in replacements.items()
+        if old
+    ]
+    changed = 0
+    with maintenance():
+        for event in ActivityEvent.objects.iterator():
+            fields = {
+                "summary": event.summary,
+                "before": json.dumps(event.before),
+                "after": json.dumps(event.after),
+            }
+            updated = dict(fields)
+            for pattern, new in patterns:
+                updated = {k: pattern.sub(new, v) for k, v in updated.items()}
+            if updated != fields:
+                ActivityEvent.objects.filter(pk=event.pk).update(
+                    summary=updated["summary"][:255],
+                    before=json.loads(updated["before"]),
+                    after=json.loads(updated["after"]),
+                )
+                changed += 1
+    return changed
+
+
+def prune_ip_addresses(now: datetime) -> int:
+    with maintenance():
+        return ActivityEvent.objects.filter(
+            ip_address__isnull=False, occurred_at__lt=now - IP_RETENTION
+        ).update(ip_address=None)

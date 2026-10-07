@@ -10,7 +10,7 @@ from apps.accounts.adapters import INVITE_SESSION_KEY
 from apps.accounts.models import User
 from apps.accounts.utils import request_user
 from apps.leagues import services
-from apps.leagues.forms import InviteForm, RoleForm
+from apps.leagues.forms import InviteForm, LeagueSettingsForm, RoleForm
 from apps.leagues.models import Invite, League, Membership, Role
 from apps.leagues.permissions import commissioner_required, league_member_required
 
@@ -164,3 +164,56 @@ def _run(request: HttpRequest, action: Callable[[], object]) -> None:
         messages.error(request, str(exc))
     else:
         messages.success(request, "Saved.")
+
+
+@commissioner_required
+def league_settings(
+    request: HttpRequest, league: League, membership: Membership
+) -> HttpResponse:
+    league_season = services.current_league_season(league)
+    if league_season is None:
+        return render(request, "picks/no_season.html", {"league": league})
+    current = league_season.settings
+    form = LeagueSettingsForm(request.POST or None, instance=current)
+    if request.method == "POST" and form.is_valid():
+        changes = {
+            name: form.cleaned_data[name] for name in LeagueSettingsForm.Meta.fields
+        }
+        # The form already copied the values onto the instance; reload it so the
+        # service can compare against what is saved.
+        current.refresh_from_db()
+        try:
+            changed = services.update_settings(
+                current,
+                changes,
+                actor=request_user(request),
+                apply_to_season=form.cleaned_data["apply_to_season"],
+            )
+        except services.LeagueError as exc:
+            form.add_error(None, str(exc))
+        else:
+            messages.success(
+                request,
+                f"Saved {len(changed)} setting{'s' if len(changed) != 1 else ''}."
+                if changed
+                else "No changes.",
+            )
+            return redirect("leagues:settings", slug=league.slug)
+    return render(
+        request,
+        "leagues/settings.html",
+        {"league": league, "membership": membership, "form": form},
+    )
+
+
+@league_member_required
+def leave(request: HttpRequest, league: League, membership: Membership) -> HttpResponse:
+    if request.method == "POST":
+        try:
+            services.leave_league(membership)
+        except services.LeagueError as exc:
+            messages.error(request, str(exc))
+            return redirect("leagues:home", slug=league.slug)
+        messages.success(request, f"You left {league}.")
+        return redirect("core:home")
+    return render(request, "leagues/leave.html", {"league": league})

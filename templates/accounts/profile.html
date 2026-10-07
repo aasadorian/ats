@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock title %}
+{% block content %}
+  <h1>Account</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+  <h2>Security</h2>
+  <ul>
+    <li>
+      <a href="{% url 'account_email' %}">Email address</a>
+    </li>
+    <li>
+      <a href="{% url 'account_change_password' %}">Password</a>
+    </li>
+    <li>
+      <a href="{% url 'mfa_index' %}">Two-factor authentication</a>
+    </li>
+    <li>
+      <a href="{% url 'usersessions_list' %}">Signed-in devices (sign out everywhere)</a>
+    </li>
+  </ul>
+  <h2>Delete account</h2>
+  <p>
+    <a href="{% url 'accounts:delete' %}">Delete my account</a>
+  </p>
+{% endblock content %}

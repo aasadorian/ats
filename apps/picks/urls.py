@@ -11,4 +11,9 @@ urlpatterns = [
     path("leagues/<slug:slug>/picks/clear/", views.clear_pick, name="clear"),
     path("leagues/<slug:slug>/picks/best-bet/", views.best_bet, name="best_bet"),
     path("leagues/<slug:slug>/picks/tiebreaker/", views.tiebreaker, name="tiebreaker"),
+    path(
+        "leagues/<slug:slug>/members/<int:pk>/picks/",
+        views.member_picks,
+        name="member_picks",
+    ),
 ]

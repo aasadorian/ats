@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Leave {{ league.name }}{% endblock title %}
+{% block content %}
+  <h1>Leave {{ league.name }}?</h1>
+  <p>Your past picks and results stay in the standings. A commissioner can add you back later.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Leave league</button>
+    <a href="{% url 'leagues:home' league.slug %}">Cancel</a>
+  </form>
+{% endblock content %}

@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.mfa",
+    "allauth.usersessions",
     "django_htmx",
     "apps.accounts",
     "apps.core",
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "allauth.usersessions.middleware.UserSessionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "apps.activity.middleware.EventContextMiddleware",
 ]

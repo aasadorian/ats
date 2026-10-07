@@ -20,6 +20,7 @@ with one weekly **best bet** worth 3 points.
 | 10 | [Activity Log](10-activity-log.md) | Append-only log of lines, picks, scores, settings, membership and security events; who sees what |
 | 11 | [Coding Standards](11-coding-standards.md) | PEP 8 + Django style + Google guide as reference; Ruff/mypy enforcement; minimal comments; no emojis |
 | 12 | [Roadmap](12-roadmap.md) | Build milestones and status |
+| 13 | [Implementation Reference](13-implementation-reference.md) | The app as built: exact models, rules, algorithms, URLs, jobs, tooling, tests, bugs and lessons; enough to rebuild from docs alone |
 | ADR | [Architecture Decision Records](adr/README.md) | Major technical decisions with options considered (e.g., [0001 Django](adr/0001-web-framework-django.md)) |
 
 ## Decision log
@@ -69,6 +70,12 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-07 | Standings computed in Python with a single `grade()` function (instead of SQL aggregates); cache table only if needed | [04](04-data-model.md) |
 | 2026-10-07 | A split weekly prize counts as a week won for each member who shares it | [12](12-roadmap.md) |
 | 2026-10-07 | Score sync requests only feed weeks with live games; no requests outside game windows | [03](03-architecture-and-hosting.md) |
+| 2026-10-07 | Docs must be complete enough to rebuild the app from them alone; `13-implementation-reference.md` is kept current with every change | [13](13-implementation-reference.md) |
+| 2026-10-07 | Commissioner pick entry follows normal lock rules (reason required, member emailed) | [13](13-implementation-reference.md) |
+| 2026-10-07 | Score corrections apply to the shared game record (all leagues) and stop feed updates until restored | [13](13-implementation-reference.md) |
+| 2026-10-07 | Activity log hides other members' pick details until that week's pick deadline (per week, not per game) | [10](10-activity-log.md), [13](13-implementation-reference.md) |
+| 2026-10-07 | Settings page shows only implemented settings; later-phase settings stay in the model but hidden | [08](08-league-settings.md) |
+| 2026-10-07 | Signed-in device management uses allauth `usersessions` | [09](09-user-management.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status

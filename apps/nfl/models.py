@@ -74,6 +74,10 @@ class Game(models.Model):
     neutral_site = models.BooleanField(default=False)
     home_score = models.PositiveSmallIntegerField(null=True, blank=True)
     away_score = models.PositiveSmallIntegerField(null=True, blank=True)
+    score_overridden = models.BooleanField(
+        default=False,
+        help_text="A commissioner corrected the score; feed syncs leave it alone.",
+    )
 
     class Meta:
         ordering = ("kickoff_at", "external_id")

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load tz %}
+{% block title %}{{ title }} - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+  </p>
+  <h1>{{ title }}</h1>
+  {% if show_filters %}
+    <form method="get" class="filters">
+      <label>
+        Member
+        <select name="member">
+          <option value="">Anyone</option>
+          {% for member in members %}
+            <option value="{{ member.user.pk }}"
+                    {% if filters.member and filters.member.pk == member.user.pk %}selected{% endif %}>
+              {{ member.user }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Week
+        <input name="week"
+               size="3"
+               value="{{ filters.week_number|default_if_none:'' }}">
+      </label>
+      <label>
+        Category
+        <select name="category">
+          <option value="">All</option>
+          {% for value, label in categories %}
+            <option value="{{ value }}"
+                    {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Event
+        <input name="event_type"
+               size="16"
+               value="{{ filters.event_type }}"
+               placeholder="pick.changed">
+      </label>
+      <label>
+        From
+        <input type="date" name="since" value="{{ filters.since|date:'Y-m-d' }}">
+      </label>
+      <label>
+        To
+        <input type="date" name="until" value="{{ filters.until|date:'Y-m-d' }}">
+      </label>
+      <button type="submit">Filter</button>
+      <button type="submit" name="format" value="csv">Export CSV</button>
+    </form>
+  {% endif %}
+  {% timezone user.timezone %}
+    <ol class="activity">
+      {% for row in rows %}
+        <li>
+          <span class="muted">{{ row.event.occurred_at|date:"M j, g:i A" }}</span>
+          {{ row.summary }}
+          {% if row.event.league_week %}<span class="muted">(week {{ row.event.league_week.week.number }})</span>{% endif %}
+        </li>
+      {% empty %}
+        <li>No activity yet.</li>
+      {% endfor %}
+    </ol>
+  {% endtimezone %}
+  {% if page.has_other_pages %}
+    <nav class="pager">
+      {% if page.has_previous %}
+        <a href="?{% for key, value in query.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page.previous_page_number }}">Newer</a>
+      {% endif %}
+      Page {{ page.number }} of {{ page.paginator.num_pages }}
+      {% if page.has_next %}
+        <a href="?{% for key, value in query.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page.next_page_number }}">Older</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endblock content %}

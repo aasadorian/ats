@@ -15,18 +15,21 @@ the decision log in [README](README.md), and update the relevant doc.
    launch? *(The user will review this later.)*
 
 ## Product — open
-4. Others' picks hidden until each game locks (current design), or visible earlier?
-5. Login method preference — email+password, magic link, Google? (Can support several; [09](09-user-management.md) recommends email+password plus magic link for MVP.)
-6. Import past seasons from officepoolstop? If so, can we export CSV/HTML from it?
-7. Entry fees / payouts — track in-app (record only) or keep off-app?
-8. Notification channels — email only for MVP, or also SMS/push?
-9. Domain name for the site.
-10. How many members do we expect? (Assumed 10–50.)
+4. **Commissioner entering picks after a game locks** (for example, a member texted a pick before
+   kickoff but couldn't log in): currently not allowed; lock rules apply to commissioners too.
+   Allow it with a reason?
+5. Others' picks hidden until each game locks (current design), or visible earlier?
+6. Login method preference — email+password, magic link, Google? (Can support several; [09](09-user-management.md) recommends email+password plus magic link for MVP.)
+7. Import past seasons from officepoolstop? If so, can we export CSV/HTML from it?
+8. Entry fees / payouts — track in-app (record only) or keep off-app?
+9. Notification channels — email only for MVP, or also SMS/push?
+10. Domain name for the site.
+11. How many members do we expect? (Assumed 10–50.)
 
 ## Technical — open
-11. Confirm hosting choice (Render vs. Railway vs. a VPS) and budget.
-12. Email provider choice (Postmark / Resend / SES) — needs a verified sending domain.
-13. Target launch: in time for the 2027 season? A soft launch running alongside officepoolstop
+12. Confirm hosting choice (Render vs. Railway vs. a VPS) and budget.
+13. Email provider choice (Postmark / Resend / SES) — needs a verified sending domain.
+14. Target launch: in time for the 2027 season? A soft launch running alongside officepoolstop
     for the rest of 2026 would be a great real-world test.
 
 ## Resolved

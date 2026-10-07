@@ -12,6 +12,7 @@
     <header class="site-header">
       <a href="{% url 'core:home' %}" class="brand">ATS Pick'em</a>
       {% if user.is_authenticated %}
+        <a href="{% url 'accounts:profile' %}" class="brand">Account</a>
         <form method="post" action="{% url 'account_logout' %}">
           {% csrf_token %}
           <button type="submit">Sign out</button>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete account{% endblock title %}
+{% block content %}
+  <h1>Delete your account</h1>
+  <p>
+    Your email address and name are removed and you are signed out everywhere. Your past picks stay
+    in league history under "Former member", so standings and prizes don't change. This can't be
+    undone.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Delete my account</button>
+  </form>
+{% endblock content %}

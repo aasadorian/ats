@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load tz %}
+{% block title %}Picks for {{ target.user }} - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:members' league.slug %}">Members</a>
+  </p>
+  {% url 'picks:member_picks' league.slug target.pk as base_url %}
+  <form method="get" action="{{ base_url }}" class="week-picker">
+    <label for="week">Week</label>
+    <select id="week" name="week" onchange="this.form.submit()">
+      {% for league_week in weeks %}
+        <option value="{{ league_week.week.number }}"
+                {% if league_week.pk == sheet.league_week.pk %}selected{% endif %}>Week {{ league_week.week.number }}</option>
+      {% endfor %}
+    </select>
+  </form>
+  <h1>Picks for {{ target.user }}</h1>
+  <p class="muted">Changes are logged as commissioner actions and the member is emailed. Lock rules still apply.</p>
+  {% timezone user.timezone %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th>Current pick</th>
+            <th>Change</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in sheet.rows %}
+            <tr>
+              <td>
+                {{ row.game.away_team }} {{ row.away_text }} @ {{ row.game.home_team }} {{ row.home_text }}
+                <br>
+                <small class="muted">{{ row.state }}, locks {{ row.lock_at|date:"D g:i A" }}</small>
+              </td>
+              <td>
+                {% if row.pick %}
+                  {{ row.pick.team.abbreviation }}
+                  {% if row.pick.is_best_bet %}(best bet){% endif %}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td>
+                {% if row.is_open %}
+                  <form method="post" action="{{ base_url }}" class="inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="week" value="{{ sheet.league_week.week.number }}">
+                    <input type="hidden" name="game" value="{{ row.game.pk }}">
+                    <select name="team" aria-label="Team">
+                      <option value="">No pick</option>
+                      <option value="{{ row.game.away_team.pk }}"
+                              {% if row.pick.team_id == row.game.away_team.pk %}selected{% endif %}>
+                        {{ row.game.away_team }}
+                      </option>
+                      <option value="{{ row.game.home_team.pk }}"
+                              {% if row.pick.team_id == row.game.home_team.pk %}selected{% endif %}>
+                        {{ row.game.home_team }}
+                      </option>
+                    </select>
+                    <label>
+                      <input type="checkbox"
+                             name="best_bet"
+                             {% if row.pick.is_best_bet %}checked{% endif %}>
+                      Best bet
+                    </label>
+                    <input name="reason" size="12" aria-label="Reason" placeholder="Reason">
+                    <button type="submit">Save</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endtimezone %}
+{% endblock content %}

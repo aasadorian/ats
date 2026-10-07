@@ -10,12 +10,22 @@
     <a href="{% url 'standings:week' league.slug %}">Week results</a>
     |
     <a href="{% url 'standings:season' league.slug %}">Standings</a>
+    |
+    <a href="{% url 'activity:feed' league.slug %}">League activity</a>
+    |
+    <a href="{% url 'activity:mine' league.slug %}">My activity</a>
   </p>
   {% if membership.is_commissioner %}
     <p>
       <a href="{% url 'leagues:members' league.slug %}">Manage members</a>
       |
       <a href="{% url 'lines:review' league.slug %}">Review lines</a>
+      |
+      <a href="{% url 'standings:scores' league.slug %}">Scores</a>
+      |
+      <a href="{% url 'leagues:settings' league.slug %}">Settings</a>
+      |
+      <a href="{% url 'activity:log' league.slug %}">Activity log</a>
     </p>
   {% endif %}
   <h2>Members</h2>
@@ -27,4 +37,7 @@
       </li>
     {% endfor %}
   </ul>
+  <p>
+    <a href="{% url 'leagues:leave' league.slug %}" class="muted">Leave this league</a>
+  </p>
 {% endblock content %}

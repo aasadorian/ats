@@ -84,6 +84,7 @@
           </td>
           <td class="actions">
             {% if member.is_active %}
+              <a href="{% url 'picks:member_picks' league.slug member.pk %}">Picks</a>
               <form method="post"
                     action="{% url 'leagues:membership_deactivate' league.slug member.pk %}">
                 {% csrf_token %}

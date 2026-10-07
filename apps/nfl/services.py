@@ -105,6 +105,9 @@ def _upsert_game(
         "away_score": data.away_score,
     }
     game = Game.objects.filter(external_id=data.external_id).first()
+    if game is not None and game.score_overridden:
+        for name in ("status", "home_score", "away_score"):
+            fields.pop(name)
     if game is None:
         Game.objects.create(
             external_id=data.external_id,
@@ -139,7 +142,11 @@ def _upsert_game(
             after={"kickoff_at": data.kickoff_at.isoformat()},
         )
 
-    if data.status == GameStatus.FINAL and game.status != GameStatus.FINAL:
+    if (
+        data.status == GameStatus.FINAL
+        and game.status != GameStatus.FINAL
+        and not game.score_overridden
+    ):
         result.finals.append(str(game))
         record_event(
             event_type="game.final",
