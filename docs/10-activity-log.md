@@ -80,7 +80,7 @@ Indexes: `(league_id, occurred_at)`, `(league_id, league_week_id, category)`, `(
 | `game.score_corrected` | commissioner | Commissioner changed a final score (before → after, reason) |
 | `tiebreaker_game.set` / `tiebreaker_game.changed` | system / commissioner | Tiebreaker game chosen or overridden |
 | `week.final` | system | Every game in the week is final |
-| `week.winners_decided` | system | Weekly winner(s), points and tiebreaker distances |
+| `standings.weekly_winners` | system | Weekly winner(s), points and the tiebreaker game's actual total |
 
 ### Settings and membership
 | Event | Actor | Logged when |

@@ -82,8 +82,11 @@ def _parse_week(entry: dict[str, Any]) -> WeekData:
 
 def _parse_event(event: dict[str, Any], week_number: int) -> GameData:
     competition = event["competitions"][0]
-    teams = {c["homeAway"]: _parse_team(c["team"]) for c in competition["competitors"]}
+    competitors = {c["homeAway"]: c for c in competition["competitors"]}
+    teams = {side: _parse_team(c["team"]) for side, c in competitors.items()}
     status = competition["status"]
+    game_status = _map_status(status["type"])
+    has_scores = game_status in (GameStatus.IN_PROGRESS, GameStatus.FINAL)
     return GameData(
         external_id=str(event["id"]),
         week_number=week_number,
@@ -92,9 +95,16 @@ def _parse_event(event: dict[str, Any], week_number: int) -> GameData:
         kickoff_at=_parse_datetime(event["date"]),
         kickoff_is_tbd=bool(status.get("isTBDFlex"))
         or not competition.get("timeValid", True),
-        status=_map_status(status["type"]),
+        status=game_status,
         neutral_site=bool(competition.get("neutralSite")),
+        home_score=_score(competitors["home"]) if has_scores else None,
+        away_score=_score(competitors["away"]) if has_scores else None,
     )
+
+
+def _score(competitor: dict[str, Any]) -> int | None:
+    value = str(competitor.get("score", "")).strip()
+    return int(value) if value.isdigit() else None
 
 
 def _parse_team(team: dict[str, Any]) -> TeamData:

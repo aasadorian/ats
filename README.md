@@ -57,3 +57,10 @@ uv run python manage.py lock_spreads
 ```
 It locks lines for any week past its spread lock time (default Tuesday 3:00 AM Pacific) and is
 safe to run repeatedly; production runs it every 15 minutes.
+
+## Scores and standings
+```
+uv run python manage.py sync_scores
+```
+Updates scores for games in progress, marks weeks final and records weekly winners. It makes no
+requests when no game is live; production runs it every 5 minutes.

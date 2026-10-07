@@ -17,7 +17,7 @@ from apps.picks.selectors import default_week, pick_sheet, picks_grid
 
 @league_member_required
 def sheet(request: HttpRequest, league: League, membership: Membership) -> HttpResponse:
-    league_week = _league_week(league, request.GET.get("week", ""))
+    league_week = league_week_for(league, request.GET.get("week", ""))
     if league_week is None:
         return render(request, "picks/no_season.html", {"league": league})
     return render(
@@ -27,7 +27,7 @@ def sheet(request: HttpRequest, league: League, membership: Membership) -> HttpR
 
 @league_member_required
 def grid(request: HttpRequest, league: League, membership: Membership) -> HttpResponse:
-    league_week = _league_week(league, request.GET.get("week", ""))
+    league_week = league_week_for(league, request.GET.get("week", ""))
     if league_week is None:
         return render(request, "picks/no_season.html", {"league": league})
     return render(
@@ -37,7 +37,7 @@ def grid(request: HttpRequest, league: League, membership: Membership) -> HttpRe
             "league": league,
             "membership": membership,
             "grid": picks_grid(league_week, membership, timezone.now()),
-            "weeks": _weeks(league),
+            "weeks": weeks_for(league),
         },
     )
 
@@ -96,7 +96,7 @@ def best_bet(
 def tiebreaker(
     request: HttpRequest, league: League, membership: Membership
 ) -> HttpResponse:
-    league_week = _league_week(league, request.POST.get("week", ""))
+    league_week = league_week_for(league, request.POST.get("week", ""))
     if league_week is None:
         raise Http404
     raw = request.POST.get("guess", "").strip()
@@ -153,18 +153,18 @@ def _sheet_context(
         "league": league,
         "membership": membership,
         "sheet": pick_sheet(membership, league_week, timezone.now()),
-        "weeks": _weeks(league),
+        "weeks": weeks_for(league),
     }
 
 
-def _weeks(league: League) -> list[LeagueWeek]:
+def weeks_for(league: League) -> list[LeagueWeek]:
     league_season = current_league_season(league)
     if league_season is None:
         return []
     return list(league_season.weeks.select_related("week").order_by("week__number"))
 
 
-def _league_week(league: League, requested: str) -> LeagueWeek | None:
+def league_week_for(league: League, requested: str) -> LeagueWeek | None:
     league_season = current_league_season(league)
     if league_season is None:
         return None
@@ -180,7 +180,7 @@ def _league_week(league: League, requested: str) -> LeagueWeek | None:
 
 
 def _target(request: HttpRequest, league: League) -> tuple[LeagueWeek, Game]:
-    league_week = _league_week(league, request.POST.get("week", ""))
+    league_week = league_week_for(league, request.POST.get("week", ""))
     if league_week is None:
         raise Http404
     game = get_object_or_404(

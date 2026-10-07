@@ -6,6 +6,10 @@
     <a href="{% url 'picks:sheet' league.slug %}">My picks</a>
     |
     <a href="{% url 'picks:grid' league.slug %}">Everyone's picks</a>
+    |
+    <a href="{% url 'standings:week' league.slug %}">Week results</a>
+    |
+    <a href="{% url 'standings:season' league.slug %}">Standings</a>
   </p>
   {% if membership.is_commissioner %}
     <p>

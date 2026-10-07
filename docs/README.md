@@ -66,8 +66,11 @@ Short record of decisions made so far. Add a row whenever something is settled.
 | 2026-10-07 | With one best bet per week, choosing a new best bet moves it (unless the current one is locked); with a higher limit, members must remove one first | [12](12-roadmap.md) |
 | 2026-10-07 | Before a game is revealed, the picks grid shows whether each member has picked it, but never which team | [12](12-roadmap.md), [10](10-activity-log.md) |
 | 2026-10-07 | HTMX served from the app's static files, not a CDN | [12](12-roadmap.md) |
+| 2026-10-07 | Standings computed in Python with a single `grade()` function (instead of SQL aggregates); cache table only if needed | [04](04-data-model.md) |
+| 2026-10-07 | A split weekly prize counts as a week won for each member who shares it | [12](12-roadmap.md) |
+| 2026-10-07 | Score sync requests only feed weeks with live games; no requests outside game windows | [03](03-architecture-and-hosting.md) |
 | 2026-10-05 | `.gitignore` added; local credential files (`Projectscreds.txt`, `.env`) are never committed | — |
 
 ## Status
 
-Milestones 0-4 complete (skeleton, NFL data, leagues and members, lines, picks); see [12 Roadmap](12-roadmap.md).
+Milestones 0-5 complete (skeleton, NFL data, leagues and members, lines, picks, scoring and standings); see [12 Roadmap](12-roadmap.md).

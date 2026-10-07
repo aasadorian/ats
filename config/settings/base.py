@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "apps.leagues",
     "apps.lines",
     "apps.picks",
+    "apps.standings",
 ]
 
 MIDDLEWARE = [

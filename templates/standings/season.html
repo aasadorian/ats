@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Standings - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+  </p>
+  <h1>{{ standings.league_season.season }} standings</h1>
+  <section class="leaders">
+    <p>
+      <strong>{% if standings.is_complete %}Season points champion{% else %}Points leader{% endif %}:</strong>
+      {% for leader in standings.points_leaders %}
+        {{ leader.user }}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+        none yet
+      {% endfor %}
+      {% if standings.points_leaders|length > 1 %}(split){% endif %}
+    </p>
+    <p>
+      <strong>{% if standings.is_complete %}Best bet champion{% else %}Best bet leader{% endif %}:</strong>
+      {% for leader in standings.best_bet_leaders %}
+        {{ leader.user }}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+        none yet
+      {% endfor %}
+      {% if standings.best_bet_leaders|length > 1 %}(split){% endif %}
+    </p>
+  </section>
+  <h2>Points</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Member</th>
+          <th>Points</th>
+          <th>W-L-P</th>
+          <th>Best bets</th>
+          <th>Weeks won</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in standings.rows %}
+          <tr>
+            <td>{{ row.rank }}</td>
+            <td>{{ row.membership.user }}</td>
+            <td>{{ row.points|floatformat:"-1" }}</td>
+            <td>{{ row.wins }}-{{ row.losses }}-{{ row.pushes }}</td>
+            <td>{{ row.best_bet_wins }}-{{ row.best_bet_losses }}-{{ row.best_bet_pushes }}</td>
+            <td>{{ row.weekly_wins }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">No results yet.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <h2>Weekly winners</h2>
+  <ul>
+    {% for week in standings.weeks %}
+      <li>
+        <a href="{% url 'standings:week' league.slug %}?week={{ week.league_week.week.number }}">Week {{ week.league_week.week.number }}</a>:
+        {% for winner in week.winners %}
+          {{ winner.user }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+          -
+        {% endfor %}
+        {% if week.is_split %}(split){% endif %}
+        {% if not week.is_final %}<span class="muted">(in progress)</span>{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}

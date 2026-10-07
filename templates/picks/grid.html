@@ -19,6 +19,10 @@
               {{ column.game.away_team }} @ {{ column.game.home_team }}
               <br>
               <small>{{ column.game.home_team }} {{ column.home_text }}</small>
+              {% if column.game.home_score is not None %}
+                <br>
+                <small>{{ column.game.away_score }}-{{ column.game.home_score }} {% if column.game.status == "final" %}F{% endif %}</small>
+              {% endif %}
             </th>
           {% endfor %}
           <th>Tiebreaker</th>
@@ -30,7 +34,7 @@
             <th scope="row">{{ row.membership.user }}</th>
             {% for cell in row.cells %}
               {% if cell.pick %}
-                <td class="{% if cell.pick.is_best_bet %}best-bet-cell{% endif %}">
+                <td class="{% if cell.pick.is_best_bet %}best-bet-cell {% endif %}{{ cell.outcome }}">
                   {{ cell.pick.team.abbreviation }}
                   {% if cell.pick.is_best_bet %}<small>BB</small>{% endif %}
                 </td>

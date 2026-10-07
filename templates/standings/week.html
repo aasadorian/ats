@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load lines %}
+{% block title %}Week {{ results.league_week.week.number }} results - {{ league.name }}{% endblock title %}
+{% block content %}
+  <p>
+    <a href="{% url 'leagues:home' league.slug %}">{{ league.name }}</a>
+    |
+    <a href="{% url 'standings:season' league.slug %}">Standings</a>
+  </p>
+  {% include "picks/_week_nav.html" with url_name="standings:week" selected=results.league_week %}
+  <h1>Week {{ results.league_week.week.number }} results</h1>
+  <p>
+    {% if results.is_final %}
+      <strong>Winner{{ results.winners|length|pluralize }}:</strong>
+    {% else %}
+      <strong>Leading:</strong>
+    {% endif %}
+    {% for winner in results.winners %}
+      {{ winner.user }}{% if not forloop.last %}, {% endif %}
+    {% empty %}
+      none yet
+    {% endfor %}
+    {% if results.is_split %}(split){% endif %}
+    {% if results.decided_by_tiebreaker %}
+      <span class="muted">Decided by tiebreaker: {{ results.tiebreaker_actual }} actual.</span>
+    {% endif %}
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Points</th>
+          <th>W-L-P</th>
+          <th>Best bet</th>
+          <th>Tiebreaker</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in results.members %}
+          <tr>
+            <td>{{ member.membership.user }}</td>
+            <td>{{ member.points|floatformat:"-1" }}</td>
+            <td>{{ member.wins }}-{{ member.losses }}-{{ member.pushes }}</td>
+            <td>
+              {% with best_bet=member.best_bet %}
+                {% if best_bet and best_bet.outcome != "pending" %}
+                  <span class="{{ best_bet.outcome }}">{{ best_bet.pick.team.abbreviation }} ({{ best_bet.outcome }})</span>
+                {% elif best_bet and member.membership.pk == membership.pk %}
+                  {{ best_bet.pick.team.abbreviation }}
+                {% else %}
+                  -
+                {% endif %}
+              {% endwith %}
+            </td>
+            <td>
+              {% if tiebreakers_revealed or member.membership.pk == membership.pk %}
+                {{ member.tiebreaker_guess|default_if_none:"-" }}
+              {% else %}
+                <span class="muted">Hidden</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <h2>Games</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Game</th>
+          <th>Line</th>
+          <th>Score</th>
+          <th>Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in results.games %}
+          <tr>
+            <td>{{ result.game.away_team }} @ {{ result.game.home_team }}</td>
+            <td>
+              {% if result.spread %}
+                {% if result.spread.status == "void" %}
+                  Void
+                {% else %}
+                  {{ result.game.home_team }} {{ result.spread.home_line|line }}
+                {% endif %}
+              {% endif %}
+            </td>
+            <td>
+              {% if result.game.home_score is not None %}
+                {{ result.game.away_score }}-{{ result.game.home_score }}
+              {% endif %}
+              {% if result.game.status != "final" %}<span class="muted">{{ result.game.get_status_display }}</span>{% endif %}
+            </td>
+            <td>
+              {% if result.home_margin is not None %}
+                {{ result.covering_team|default:"Push" }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock content %}

@@ -29,6 +29,8 @@ class GameData:
     kickoff_is_tbd: bool
     status: str
     neutral_site: bool
+    home_score: int | None = None
+    away_score: int | None = None
 
 
 class ScheduleProvider(Protocol):

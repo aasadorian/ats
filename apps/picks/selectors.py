@@ -7,6 +7,7 @@ from apps.lines.models import Spread, SpreadStatus, team_line
 from apps.nfl.models import Game, GameStatus
 from apps.picks.models import Pick, WeeklyEntry
 from apps.picks.services import OPEN_STATUSES, WeekContext
+from apps.standings.grading import Outcome, grade
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,7 @@ class SheetRow:
     home_text: str
     away_text: str
     pick: Pick | None
+    outcome: str = ""
 
     @property
     def is_open(self) -> bool:
@@ -55,6 +57,7 @@ class GridCell:
     revealed: bool
     has_pick: bool
     pick: Pick | None
+    outcome: str = ""
 
 
 @dataclass
@@ -111,6 +114,7 @@ def pick_sheet(
                 home_text=team_line(home_line, is_home=True),
                 away_text=team_line(home_line, is_home=False),
                 pick=picks.get(game.id),
+                outcome=_outcome(picks.get(game.id), game, spread, context),
             )
         )
     return PickSheet(
@@ -158,7 +162,12 @@ def picks_grid(league_week: LeagueWeek, viewer: Membership, now: datetime) -> Pi
             GridRow(
                 membership=membership,
                 cells=[
-                    _cell(picks.get((membership.pk, game.id)), own or revealed[game.id])
+                    _cell(
+                        picks.get((membership.pk, game.id)),
+                        own or revealed[game.id],
+                        game,
+                        context,
+                    )
                     for game in games
                 ],
                 tiebreaker_guess=entries.get(membership.pk)
@@ -179,11 +188,27 @@ def _home_text(context: WeekContext, game: Game) -> str:
     return team_line(spread.home_line, is_home=True)
 
 
-def _cell(pick: Pick | None, revealed: bool) -> GridCell:
+def _cell(
+    pick: Pick | None, revealed: bool, game: Game, context: WeekContext
+) -> GridCell:
     # Unrevealed cells carry no pick at all, so templates cannot leak them.
+    if not revealed:
+        return GridCell(revealed=False, has_pick=pick is not None, pick=None)
     return GridCell(
-        revealed=revealed, has_pick=pick is not None, pick=pick if revealed else None
+        revealed=True,
+        has_pick=pick is not None,
+        pick=pick,
+        outcome=_outcome(pick, game, context.spreads.get(game.id), context),
     )
+
+
+def _outcome(
+    pick: Pick | None, game: Game, spread: Spread | None, context: WeekContext
+) -> str:
+    if pick is None:
+        return ""
+    outcome = grade(pick, game, spread, context.settings).outcome
+    return "" if outcome == Outcome.PENDING else outcome.value
 
 
 def _games(league_week: LeagueWeek) -> list[Game]:

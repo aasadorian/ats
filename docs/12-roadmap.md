@@ -9,8 +9,8 @@ Build order. Each milestone ends with working, tested software committed to `mai
 | 2 | **Leagues and members** | `League`, `LeagueSeason`, `LeagueSettings`, `LeagueWeek`, `Membership`, `Invite` and invite signup; `ActivityEvent` and `record_event()`; MFA for commissioners | A commissioner can invite people who sign up | Done (2026-10-06) |
 | 3 | **Lines** | Odds API client, median line, half-point normalization, `lock_spreads`, OFF / void handling, commissioner line review and override | Locked lines every Tuesday at 3 AM PT | Done (2026-10-06); live feed untested until an API key is added |
 | 4 | **Picks** | Pick sheet (HTMX), best bet, tiebreaker guess, per-game and weekly locks, visibility rules | Members can play a week | Done (2026-10-07) |
-| 5 | **Scoring and standings** | `sync_scores`, grading, weekly winners with splits, season standings, best bet standings, postponed games | Full league loop | Next |
-| 6 | **Launch prep** | Reminders and email provider, commissioner screens, activity log views, Render deployment, backups and monitoring | Soft launch alongside OfficePoolStop | |
+| 5 | **Scoring and standings** | `sync_scores`, grading, weekly winners with splits, season standings, best bet standings, postponed games | Full league loop | Done (2026-10-07) |
+| 6 | **Launch prep** | Reminders and email provider, commissioner screens, activity log views, Render deployment, backups and monitoring | Soft launch alongside OfficePoolStop | Next |
 | Later | Settings marked *Later* in [08](08-league-settings.md), history import, PWA, stats | | | |
 
 ## Milestone 0 notes
@@ -86,3 +86,26 @@ Build order. Each milestone ends with working, tested software committed to `mai
 - **Deferred to milestone 6:** commissioner entering picks for a member (the services already accept
   an `actor` and log it as a commissioner action), and the activity feed views. Pick events in the
   activity log include the team, so those views must apply the same visibility rule.
+
+## Milestone 5 notes
+- **Scores:** the ESPN parser now reads scores for games in progress or final. `sync_scores`
+  (every 5 minutes) asks the feed only for weeks that have a game kicked off and not yet final, so
+  it makes no requests outside game windows. A postponed game is fetched from the feed week that
+  contains its new kickoff. It reuses the stored calendar instead of refetching it.
+- **Grading** (`apps/standings/grading.py`): win/loss/push against the scoring line (fixed-at-lock
+  line; the line at pick time in `variable` mode; no line for straight-up); best bet adds the bonus;
+  push points per `push_scoring`; cancelled games and void lines score 0 for everyone. Closing-line
+  mode scores like fixed-at-lock until it is built.
+- **Weeks** move to *in progress* at first kickoff and *final* when every game is final or
+  cancelled; a postponed game holds the week open. Going final records the weekly winners in the
+  activity log.
+- **Weekly winners:** highest points (or correct picks, per `weekly_prize_metric`), then closest
+  tiebreaker guess, then split. While the tiebreaker game is unfinished, tied leaders are shown
+  together as provisional. Members who were deactivated keep the weeks they played.
+- **Pages:** *Standings* (season points with ranks that share ties, W-L-P, best bet record, weeks
+  won, current points and best bet leaders, weekly winners) and *Week results* (each member's points,
+  record, decided best bet, tiebreaker guesses after the deadline, and every game's line, score and
+  cover). The pick sheet and picks grid now show scores and win/loss/push.
+- **Deferred to milestone 6:** commissioner score corrections. These need a "score overridden" flag
+  so the next feed sync doesn't overwrite them. Also deferred: dropping the worst week and the
+  scoring extras (later-phase settings).

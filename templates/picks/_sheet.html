@@ -18,13 +18,21 @@
       {% endif %}
       <ol class="games">
         {% for row in sheet.rows %}
-          <li class="game state-{{ row.state }}">
+          <li class="game state-{{ row.state }} {{ row.outcome }}">
             <div class="game-meta">
               <span>{{ row.game.kickoff_at|date:"D M j, g:i A" }}</span>
               {% if row.state == "open" %}
                 <span>Locks {{ row.lock_at|date:"D g:i A" }}</span>
               {% elif row.state == "locked" %}
-                <span>Locked</span>
+                <span>
+                  {% if row.game.home_score is not None %}
+                    {{ row.game.away_team }} {{ row.game.away_score }}, {{ row.game.home_team }} {{ row.game.home_score }}
+                    {% if row.game.status == "final" %}final{% endif %}
+                  {% else %}
+                    Locked
+                  {% endif %}
+                  {% if row.outcome %}<strong class="outcome">{{ row.outcome|title }}</strong>{% endif %}
+                </span>
               {% elif row.state == "off" %}
                 <span>No line yet</span>
               {% elif row.state == "void" %}

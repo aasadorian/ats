@@ -317,9 +317,11 @@ postponed game). Until then, the same function gives the *provisional* leaders.
 is a winner and they split the prize. There is no tiebreaker.
 The weekly results page shows every winner, and a "split N ways" label when there's more than one.
 
-Leaderboards are aggregate SQL queries over picks joined to final games (annotated with a
-`CASE` expression for the result). At ~50 members × 272 games ≈ 14k picks per season, this is
-trivially fast; no materialized standings table needed. If it ever becomes slow, add a
+Leaderboards are computed in Python from one query per week (`apps/standings/selectors.py`),
+using the same `grade()` function as everything else, so the rules live in one place. At ~50
+members × 272 games ≈ 14k picks per season this takes milliseconds; no materialized standings table
+is needed. (The original plan was SQL `CASE` aggregates; Python was chosen in milestone 5 because
+the settings-driven rules are much clearer there.) If it ever becomes slow, add a
 `WeeklyResult(membership, league_week, correct, best_bet_correct, points)` cache table rebuilt
 whenever a game goes final.
 

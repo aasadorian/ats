@@ -89,7 +89,7 @@ That way a late or missed cron run can never leave a game unlocked.
 | `sync_schedule` | Daily 05:00 PT (in-season) | Pull schedule; catch kickoff time changes / flex scheduling |
 | `lock_spreads` | Every 15 min; acts once `now >= week.spreads_lock_at` (default Tue 3:00 AM PT) | Fetch lines, normalize to half points, snapshot as the week's locked spreads, publish the week. The same run posts lines for OFF games once they appear (feed checked at most every 2 h) and voids them at the cutoff. Implemented in milestone 3. |
 | `refresh_lines` | Later phase | `variable` / `closing` line modes only |
-| `sync_scores` | Every 5 min (cheap no-op outside game windows) | Update scores/status; grade finals |
+| `sync_scores` | Every 5 min | Fetches only the feed weeks that have games kicked off but not final (no requests otherwise), then moves league weeks to in progress / final and records weekly winners. Implemented in milestone 5. |
 | `send_reminders` | Every 15 min; sends at the league's configured `reminder_times` (default Thu 12:00, Sun 08:00 PT) | Email members with unpicked open games, a missing best bet, or a missing tiebreaker guess |
 | `apply_autopicks` | At each game's lock (Later phase) | Fill missed picks when `autopick` is enabled and the member has weeks remaining |
 | `healthcheck` | Hourly | Alert if the current week has no locked spreads past lock time, or games stuck "in progress" |

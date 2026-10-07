@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from django.db import transaction
 
@@ -18,19 +19,33 @@ class SyncResult:
     games_updated: int = 0
     rescheduled: list[str] = field(default_factory=list)
     postponed: list[str] = field(default_factory=list)
+    finals: list[str] = field(default_factory=list)
 
 
 def sync_schedule(
     provider: ScheduleProvider, *, season_year: int, weeks: Iterable[int] | None = None
 ) -> SyncResult:
     result = SyncResult()
-    week_data = provider.fetch_weeks(season_year)
-    week_numbers = list(weeks) if weeks is not None else [w.number for w in week_data]
+    known = Week.objects.filter(season__year=season_year)
+    week_data = (
+        None
+        if weeks is not None and known.exists()
+        else provider.fetch_weeks(season_year)
+    )
+    if week_data is None:
+        week_numbers = list(weeks or [])
+    elif weeks is None:
+        week_numbers = [w.number for w in week_data]
+    else:
+        week_numbers = list(weeks)
     games_by_week = {n: provider.fetch_games(season_year, n) for n in week_numbers}
 
     with transaction.atomic():
         season, _ = Season.objects.get_or_create(year=season_year)
-        week_by_number = {w.number: _upsert_week(season, w) for w in week_data}
+        if week_data is None:
+            week_by_number = {w.number: w for w in season.weeks.all()}
+        else:
+            week_by_number = {w.number: _upsert_week(season, w) for w in week_data}
         result.weeks = len(week_by_number)
         teams: dict[str, Team] = {}
         for games in games_by_week.values():
@@ -86,6 +101,8 @@ def _upsert_game(
         "kickoff_is_tbd": data.kickoff_is_tbd,
         "status": data.status,
         "neutral_site": data.neutral_site,
+        "home_score": data.home_score,
+        "away_score": data.away_score,
     }
     game = Game.objects.filter(external_id=data.external_id).first()
     if game is None:
@@ -122,9 +139,55 @@ def _upsert_game(
             after={"kickoff_at": data.kickoff_at.isoformat()},
         )
 
+    if data.status == GameStatus.FINAL and game.status != GameStatus.FINAL:
+        result.finals.append(str(game))
+        record_event(
+            event_type="game.final",
+            summary=(
+                f"Final: {game.away_team} {data.away_score}, "
+                f"{game.home_team} {data.home_score}"
+            ),
+            obj=game,
+            after={"home_score": data.home_score, "away_score": data.away_score},
+        )
+
     changed = [name for name, value in fields.items() if getattr(game, name) != value]
     for name in changed:
         setattr(game, name, fields[name])
     if changed or (game.week_id, game.postponed_from) != original:
         game.save()
         result.games_updated += 1
+
+
+LIVE_STATUSES = (GameStatus.SCHEDULED, GameStatus.IN_PROGRESS, GameStatus.POSTPONED)
+
+
+def weeks_with_live_games(season: Season, now: datetime) -> list[int]:
+    """Feed week numbers holding games that have kicked off but aren't final.
+
+    A postponed game is looked up by the feed week containing its new kickoff,
+    since the feed lists it there even though our league keeps its original week.
+    """
+    weeks = list(season.weeks.all())
+    games = Game.objects.filter(
+        week__season=season, kickoff_at__lte=now, status__in=LIVE_STATUSES
+    )
+    numbers = {
+        week.number
+        for game in games
+        for week in weeks
+        if week.starts_at <= game.kickoff_at < week.ends_at
+    }
+    return sorted(numbers)
+
+
+def sync_scores(
+    provider: ScheduleProvider, *, season_year: int, now: datetime
+) -> SyncResult | None:
+    season = Season.objects.filter(year=season_year).first()
+    if season is None:
+        return None
+    numbers = weeks_with_live_games(season, now)
+    if not numbers:
+        return None
+    return sync_schedule(provider, season_year=season_year, weeks=numbers)
